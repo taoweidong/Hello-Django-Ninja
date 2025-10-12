@@ -12,7 +12,7 @@ from django.apps import apps
 class DjangoORMUserRepository(UserRepository):
     def __init__(self):
         # 获取实际的 Django 模型类
-        self.UserModel = apps.get_model("app.domain", "User")
+        self.UserModel = apps.get_model("domain", "User")
 
     def save(self, user: User) -> None:
         user.save()

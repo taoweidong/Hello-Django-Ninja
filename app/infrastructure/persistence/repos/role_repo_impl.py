@@ -12,7 +12,7 @@ from django.apps import apps
 class DjangoORMRoleRepository(RoleRepository):
     def __init__(self):
         # 获取实际的 Django 模型类
-        self.RoleModel = apps.get_model("app.domain", "Role")
+        self.RoleModel = apps.get_model("domain", "Role")
 
     def save(self, role: Role) -> None:
         role.save()
