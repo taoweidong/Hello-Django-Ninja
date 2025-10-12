@@ -29,7 +29,7 @@ SECRET_KEY = settings.secret_key
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = settings.debug
 
-ALLOWED_HOSTS = settings.allowed_hosts
+ALLOWED_HOSTS = settings.allowed_hosts_list
 
 
 # Application definition

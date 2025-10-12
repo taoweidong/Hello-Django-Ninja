@@ -18,7 +18,7 @@ from app.interfaces.api.schemas import (
 )
 
 
-@api_controller("/health")
+@api_controller("/health", auth=None)
 class HealthController:
     """健康检查控制器"""
     
@@ -32,7 +32,7 @@ class HealthController:
             "version": "1.0.0"
         }
     
-    @http_get("/detailed", response=DetailedHealthCheckSchema)
+    @http_get("/detailed", response=DetailedHealthCheckSchema, auth=None)
     def detailed_health_check(self, request: HttpRequest):
         """详细健康检查接口"""
         # 检查数据库连接

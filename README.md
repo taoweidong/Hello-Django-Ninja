@@ -1,25 +1,5 @@
 # 基于 DDD (领域驱动设计) 和 django-ninja-extra 的 RBAC 系统设计方案
 
-## 更新记录
-
-### 2025-10-12
-- 添加系统健康检查API接口 (`/api/health/` 和 `/api/health/detailed`)
-- 实现健康检查控制器和相关Schema
-- 创建健康检查API文档 (`docs/health_api.md`)
-- 优化uv依赖管理配置和文档说明
-- 添加开发工具脚本的activate和clean命令
-
-### 2025-10-11
-- 优化uv虚拟环境管理，修复编码和路径问题
-- 改进dev_tools.py脚本，增强跨平台兼容性
-- 完善uv使用文档和最佳实践说明
-
-### 2025-10-10
-- 完成项目基础架构搭建
-- 实现RBAC核心功能（用户、角色、权限管理）
-- 集成django-ninja-extra API框架
-- 配置DDD分层架构
-
 ## 1. 项目概述
 
 本方案旨在构建一个基于 Django 框架的 RBAC（Role-Based Access Control）权限管理系统，并严格遵循领域驱动设计 (DDD) 的原则。系统将提供用户管理、角色定义、权限分配及基于 API 的交互接口。我们将深度集成 `django-ninja` 和 `django-ninja-extra`，利用其特性来支撑 DDD 的架构思想。
@@ -117,61 +97,6 @@ rbac_project/
 ├── logs/                          # 日志文件
 ├── sql/                           # 数据库表结构
 ├── tests/                         # 测试目录
-│   ├── __init__.py
-│   ├── test_common/               # 通用模块测试
-│   │   ├── __init__.py
-│   │   └── test_exceptions.py     # 异常处理测试
-│   ├── test_domain/               # 领域层测试
-│   │   ├── __init__.py
-│   │   ├── test_models/           # 模型测试
-│   │   │   ├── __init__.py
-│   │   │   ├── test_user.py       # 用户模型测试
-│   │   │   ├── test_role.py       # 角色模型测试
-│   │   │   └── test_permission.py # 权限模型测试
-│   │   ├── test_repositories/     # 仓储测试
-│   │   │   ├── __init__.py
-│   │   │   ├── test_user_repository.py    # 用户仓储测试
-│   │   │   ├── test_role_repository.py    # 角色仓储测试
-│   │   │   └── test_permission_repository.py # 权限仓储测试
-│   │   ├── test_services/         # 领域服务测试
-│   │   │   ├── __init__.py
-│   │   │   └── test_rbac_service.py       # RBAC服务测试
-│   │   └── test_factories/        # 工厂测试
-│   │       ├── __init__.py
-│   │       ├── test_user_factory.py       # 用户工厂测试
-│   │       ├── test_role_factory.py       # 角色工厂测试
-│   │       └── test_permission_factory.py # 权限工厂测试
-│   ├── test_application/          # 应用服务层测试
-│   │   ├── __init__.py
-│   │   ├── test_services/         # 应用服务测试
-│   │   │   ├── __init__.py
-│   │   │   ├── test_user_service.py       # 用户服务测试
-│   │   │   ├── test_role_service.py       # 角色服务测试
-│   │   │   └── test_permission_service.py # 权限服务测试
-│   │   └── test_dtos.py           # DTO测试
-│   ├── test_infrastructure/       # 基础设施层测试
-│   │   ├── __init__.py
-│   │   └── test_persistence/      # 持久化测试
-│   │       ├── __init__.py
-│   │       ├── test_repos/        # 仓储实现测试
-│   │       │   ├── __init__.py
-│   │       │   ├── test_user_repo_impl.py    # 用户仓储实现测试
-│   │       │   ├── test_role_repo_impl.py    # 角色仓储实现测试
-│   │       │   └── test_permission_repo_impl.py # 权限仓储实现测试
-│   │       └── test_migrations/   # 迁移测试
-│   ├── test_interfaces/           # 接口层测试
-│   │   ├── __init__.py
-│   │   └── test_api/              # API测试
-│   │       ├── __init__.py
-│   │       ├── test_controllers/  # 控制器测试
-│   │       │   ├── __init__.py
-│   │       │   ├── test_auth_controller.py   # 认证控制器测试
-│   │       │   ├── test_users_controller.py  # 用户控制器测试
-│   │       │   ├── test_roles_controller.py  # 角色控制器测试
-│   │       │   └── test_permissions_controller.py # 权限控制器测试
-│   │       ├── test_schemas.py    # Schema测试
-│   │       └── test_authentication.py # 认证测试
-│   └── test_user_model.py         # 用户模型测试 (原有测试)
 ├── manage.py                      # Django 管理命令行工具
 ├── requirements.txt               # 项目依赖
 ├── pyproject.toml                 # 项目配置文件
@@ -259,20 +184,13 @@ source venv/bin/activate
 
 对于本项目，我们推荐使用可编辑安装方式来安装所有依赖：
 
-```
-# 安装所有依赖（包括开发依赖）
-uv pip install -e .[dev]
+```bash
 
 # 或者仅安装基本依赖
 uv pip install -e .
-```
-
-或者，如果您更喜欢使用 requirements.txt 文件：
 
 ```
-# 安装所有依赖
-uv pip install -r requirements.txt
-```
+
 
 使用 `-e .` 参数的好处是：
 1. 以可编辑模式安装项目依赖
@@ -300,29 +218,6 @@ python manage.py runserver
 ```
 
 访问 http://127.0.0.1:8000/api/docs 查看 API 文档
-
-## 6. API 接口说明
-
-### 6.1 认证接口
-- `POST /api/auth/login/` - 用户登录
-
-### 6.2 用户管理接口
-- `POST /api/users/` - 创建用户
-- `GET /api/users/{user_id}/` - 获取用户信息
-- `GET /api/users/` - 获取用户列表
-
-### 6.3 角色管理接口
-- `POST /api/roles/` - 创建角色
-- `GET /api/roles/{role_id}/` - 获取角色信息
-- `GET /api/roles/` - 获取角色列表
-
-### 6.4 权限管理接口
-- `GET /api/permissions/{permission_id}/` - 获取权限信息
-- `GET /api/permissions/` - 获取权限列表
-
-### 6.5 系统健康检查接口
-- `GET /api/health/` - 基本健康检查
-- `GET /api/health/detailed` - 详细健康检查
 
 ## 7. 开发指南
 
@@ -446,3 +341,25 @@ python dev_tools.py activate
 ## 总结
 
 本项目提供了一个完整的基于 DDD 和 django-ninja-extra 的 RBAC 系统实现，具有清晰的架构分层和良好的可扩展性。通过使用现代化的 Python 工具链，项目具备了高效的开发体验和良好的代码质量保证。
+
+
+
+## 更新记录
+
+### 2025-10-12
+- 添加系统健康检查API接口 (`/api/health/` 和 `/api/health/detailed`)
+- 实现健康检查控制器和相关Schema
+- 创建健康检查API文档 (`docs/health_api.md`)
+- 优化uv依赖管理配置和文档说明
+- 添加开发工具脚本的activate和clean命令
+
+### 2025-10-11
+- 优化uv虚拟环境管理，修复编码和路径问题
+- 改进dev_tools.py脚本，增强跨平台兼容性
+- 完善uv使用文档和最佳实践说明
+
+### 2025-10-10
+- 完成项目基础架构搭建
+- 实现RBAC核心功能（用户、角色、权限管理）
+- 集成django-ninja-extra API框架
+- 配置DDD分层架构

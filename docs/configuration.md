@@ -2,52 +2,88 @@
 
 ## 概述
 
-本项目使用基于环境变量和env文件的配置管理系统，支持开发环境和生产环境的区分配置。配置文件使用python-dotenv库加载，通过service/config.py模块统一管理。
+本项目使用 `pydantic-settings` 来管理配置，替代了之前使用的 `python-dotenv`。这种改进提供了更好的类型检查、验证和错误处理功能。
 
 ## 配置文件结构
 
-项目根目录下包含两个环境配置文件：
+项目支持多种环境的配置文件：
 
-1. `.env.dev` - 开发环境配置文件
-2. `.env.prod` - 生产环境配置文件
+- `.env.dev` - 开发环境配置
+- `.env.prod` - 生产环境配置
+- `.env.example` - 配置文件示例
 
-## 环境切换
+环境切换通过 `APP_ENV` 环境变量控制，默认为 `dev`。
 
-通过设置环境变量 `APP_ENV` 来切换配置环境：
+## 配置类
 
-```bash
-# 开发环境（默认）
-export APP_ENV=dev
+配置定义在 `service/config.py` 文件中，使用 `pydantic-settings` 的 `BaseSettings` 类：
 
-# 生产环境
-export APP_ENV=prod
+```python
+class Settings(BaseSettings):
+    # 基本配置
+    debug: bool = Field(default=False, alias="DEBUG")
+    secret_key: str = Field(default="", alias="SECRET_KEY")
+    allowed_hosts: Optional[str] = Field(default="", alias="ALLOWED_HOSTS")
+    
+    # 数据库配置
+    database_url: str = Field(default="", alias="DATABASE_URL")
+    
+    # JWT配置
+    jwt_access_token_lifetime: int = Field(default=3600, alias="JWT_ACCESS_TOKEN_LIFETIME")
+    jwt_refresh_token_lifetime: int = Field(default=86400, alias="JWT_REFRESH_TOKEN_LIFETIME")
+    
+    # 日志配置
+    log_level: str = Field(default="INFO", alias="LOG_LEVEL")
+
 ```
 
-在Windows系统中使用：
-```cmd
-# 开发环境（默认）
-set APP_ENV=dev
+## 使用方法
 
-# 生产环境
-set APP_ENV=prod
+在代码中使用配置：
+
+```python
+from service.config import settings
+
+# 访问配置项
+print(settings.debug)
+print(settings.secret_key)
+
+# 访问列表类型的配置项
+print(settings.allowed_hosts_list)
 ```
 
 ## 配置项说明
 
 ### 基本配置
-- `DEBUG`: 是否开启调试模式 (true/false)
-- `SECRET_KEY`: Django密钥
+
+- `DEBUG`: 调试模式开关
+- `SECRET_KEY`: Django 密钥
 - `ALLOWED_HOSTS`: 允许的主机列表，用逗号分隔
 
 ### 数据库配置
-- `DATABASE_URL`: 数据库连接URL，支持SQLite、MySQL、PostgreSQL
+
+- `DATABASE_URL`: 数据库连接URL
 
 ### JWT配置
-- `JWT_ACCESS_TOKEN_LIFETIME`: Access Token有效期（秒）
-- `JWT_REFRESH_TOKEN_LIFETIME`: Refresh Token有效期（秒）
+
+- `JWT_ACCESS_TOKEN_LIFETIME`: JWT访问令牌有效期（秒）
+- `JWT_REFRESH_TOKEN_LIFETIME`: JWT刷新令牌有效期（秒）
 
 ### 日志配置
+
 - `LOG_LEVEL`: 日志级别
+
+## 环境变量优先级
+
+配置值的优先级从高到低：
+
+1. 环境变量
+2. 环境配置文件（.env.dev 或 .env.prod）
+3. 默认值
+
+## 验证和错误处理
+
+使用 pydantic 的验证功能，配置项会自动进行类型检查和验证。如果配置值不符合要求，会在应用启动时抛出清晰的错误信息。
 
 ## 数据库支持
 
@@ -85,21 +121,6 @@ DATABASE_URL=postgresql://username:password@localhost:5432/database_name
 需要安装的依赖：
 ```bash
 pip install psycopg2-binary
-```
-
-## 使用方法
-
-在Python代码中使用配置：
-
-```python
-from service.config import settings
-
-# 访问配置项
-if settings.debug:
-    print("Debug mode is enabled")
-
-print(f"Secret key: {settings.secret_key}")
-print(f"Allowed hosts: {settings.allowed_hosts}")
 ```
 
 ## 在Django settings中使用
@@ -192,4 +213,3 @@ class Settings:
 ```env
 # .env.dev 和 .env.prod
 NEW_CONFIG=your_value_here
-```
