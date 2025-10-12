@@ -35,70 +35,129 @@ rbac_project/
 │   ├── settings.py                 # 项目配置
 │   ├── urls.py                     # 项目根 URL 配置
 │   └── wsgi.py
-├── common/                         # 通用/共享层 (Cross-cutting Concerns)
-│   ├── __init__.py
-│   ├── exceptions.py               # 全局自定义异常
-│   ├── middlewares.py              # 自定义中间件
-│   └── utils.py                    # 通用工具函数
-├── interfaces/                     # 接口适配层 (Interface Adapters)
-│   ├── __init__.py
-│   └── api/                        # API 接口实现
-│       ├── __init__.py
-│       ├── apps.py
-│       ├── controllers/            # API 控制器 (django-ninja-extra)
-│       │   ├── __init__.py
-│       │   ├── auth.py             # 认证相关 API Controller
-│       │   ├── users.py            # 用户管理 API Controller
-│       │   ├── roles.py            # 角色管理 API Controller
-│       │   └── permissions.py      # 权限管理 API Controller
-│       ├── authentication.py       # API 认证类
-│       ├── permissions.py          # API 权限类
-│       ├── schemas.py              # API 输入输出 Schema (DTOs)
-│       └── urls.py                 # API 路由配置
-├── application/                    # 应用服务层 (Application Services)
-│   ├── __init__.py
-│   ├── services/                   # 应用服务实现
+├── app/                           # 应用目录
+│   ├── common/                    # 通用/共享层 (Cross-cutting Concerns)
 │   │   ├── __init__.py
-│   │   ├── user_service.py         # 用户相关应用服务
-│   │   ├── role_service.py         # 角色相关应用服务
-│   │   └── permission_service.py   # 权限相关应用服务
-│   └── dtos.py                     # 应用层使用的 DTO 定义 (可选，Schema也可承担)
-├── domain/                         # 领域层 (Domain Layer)
-│   ├── __init__.py
-│   ├── models/                     # 领域模型定义 (Entities, Value Objects, Aggregates)
+│   │   ├── exceptions.py          # 全局自定义异常
+│   │   ├── middlewares.py         # 自定义中间件
+│   │   └── utils.py               # 通用工具函数
+│   ├── interfaces/                # 接口适配层 (Interface Adapters)
 │   │   ├── __init__.py
-│   │   ├── user.py                 # 用户领域模型 (通常复用 Django User)
-│   │   ├── role.py                 # 角色领域模型
-│   │   └── permission.py           # 权限领域模型 (通常复用 Django Permission)
-│   ├── repositories/               # 仓储接口定义
+│   │   └── api/                   # API 接口实现
+│   │       ├── __init__.py
+│   │       ├── apps.py
+│   │       ├── controllers/       # API 控制器 (django-ninja-extra)
+│   │       │   ├── __init__.py
+│   │       │   ├── auth.py        # 认证相关 API Controller
+│   │       │   ├── users.py       # 用户管理 API Controller
+│   │       │   ├── roles.py       # 角色管理 API Controller
+│   │       │   └── permissions.py # 权限管理 API Controller
+│   │       ├── authentication.py  # API 认证类
+│   │       ├── permissions.py     # API 权限类
+│   │       ├── schemas.py         # API 输入输出 Schema (DTOs)
+│   │       └── urls.py            # API 路由配置
+│   ├── application/               # 应用服务层 (Application Services)
 │   │   ├── __init__.py
-│   │   ├── user_repository.py      # 用户仓储接口
-│   │   ├── role_repository.py      # 角色仓储接口
-│   │   └── permission_repository.py # 权限仓储接口
-│   ├── services/                   # 领域服务 (复杂的领域逻辑)
-│   │   ├── __init__.py
-│   │   └── rbac_service.py         # 核心 RBAC 逻辑 (如权限检查)
-│   └── factories.py                # 领域对象工厂 (用于创建复杂对象)
-├── infrastructure/                 # 基础设施层 (Infrastructure Layer)
-│   ├── __init__.py
-│   ├── persistence/                # 持久化实现
-│   │   ├── __init__.py
-│   │   ├── repos/                  # 仓储接口的具体实现 (对接 Django ORM)
+│   │   ├── services/              # 应用服务实现
 │   │   │   ├── __init__.py
-│   │   │   ├── user_repo_impl.py   # 用户仓储实现
-│   │   │   ├── role_repo_impl.py   # 角色仓储实现
-│   │   │   └── permission_repo_impl.py # 权限仓储实现
-│   │   └── migrations/             # 数据库迁移文件 (由 Django 管理)
-│   └── config/                     # 第三方库配置等 (如有)
-├── tests/                          # 测试目录
+│   │   │   ├── user_service.py    # 用户相关应用服务
+│   │   │   ├── role_service.py    # 角色相关应用服务
+│   │   │   └── permission_service.py # 权限相关应用服务
+│   │   └── dtos.py                # 应用层使用的 DTO 定义 (可选，Schema也可承担)
+│   ├── domain/                    # 领域层 (Domain Layer)
+│   │   ├── __init__.py
+│   │   ├── models/                # 领域模型定义 (Entities, Value Objects, Aggregates)
+│   │   │   ├── __init__.py
+│   │   │   ├── user.py            # 用户领域模型 (通常复用 Django User)
+│   │   │   ├── role.py            # 角色领域模型
+│   │   │   └── permission.py      # 权限领域模型 (通常复用 Django Permission)
+│   │   ├── repositories/          # 仓储接口定义
+│   │   │   ├── __init__.py
+│   │   │   ├── user_repository.py # 用户仓储接口
+│   │   │   ├── role_repository.py # 角色仓储接口
+│   │   │   └── permission_repository.py # 权限仓储接口
+│   │   ├── services/              # 领域服务 (复杂的领域逻辑)
+│   │   │   ├── __init__.py
+│   │   │   └── rbac_service.py    # 核心 RBAC 逻辑 (如权限检查)
+│   │   └── factories.py           # 领域对象工厂 (用于创建复杂对象)
+│   └── infrastructure/            # 基础设施层 (Infrastructure Layer)
+│       ├── __init__.py
+│       ├── persistence/           # 持久化实现
+│       │   ├── __init__.py
+│       │   ├── repos/             # 仓储接口的具体实现 (对接 Django ORM)
+│       │   │   ├── __init__.py
+│       │   │   ├── user_repo_impl.py   # 用户仓储实现
+│       │   │   ├── role_repo_impl.py   # 角色仓储实现
+│       │   │   └── permission_repo_impl.py # 权限仓储实现
+│       │   └── migrations/        # 数据库迁移文件 (由 Django 管理)
+│       └── config/                # 第三方库配置等 (如有)
+├── data/                          # 测试数据文件
+├── docs/                          # 项目文档
+│   └── uv_usage.md                # uv 使用指南
+├── logs/                          # 日志文件
+├── sql/                           # 数据库表结构
+├── tests/                         # 测试目录
 │   ├── __init__.py
-│   └── test_user_model.py          # 用户模型测试
-├── manage.py                       # Django 管理命令行工具
-├── requirements.txt                # 项目依赖
-├── pyproject.toml                  # 项目配置文件
-├── pytest.ini                      # pytest 配置
-├── uv.lock                         # uv 锁文件
-└── dev_tools.py                    # 开发工具脚本
+│   ├── test_common/               # 通用模块测试
+│   │   ├── __init__.py
+│   │   └── test_exceptions.py     # 异常处理测试
+│   ├── test_domain/               # 领域层测试
+│   │   ├── __init__.py
+│   │   ├── test_models/           # 模型测试
+│   │   │   ├── __init__.py
+│   │   │   ├── test_user.py       # 用户模型测试
+│   │   │   ├── test_role.py       # 角色模型测试
+│   │   │   └── test_permission.py # 权限模型测试
+│   │   ├── test_repositories/     # 仓储测试
+│   │   │   ├── __init__.py
+│   │   │   ├── test_user_repository.py    # 用户仓储测试
+│   │   │   ├── test_role_repository.py    # 角色仓储测试
+│   │   │   └── test_permission_repository.py # 权限仓储测试
+│   │   ├── test_services/         # 领域服务测试
+│   │   │   ├── __init__.py
+│   │   │   └── test_rbac_service.py       # RBAC服务测试
+│   │   └── test_factories/        # 工厂测试
+│   │       ├── __init__.py
+│   │       ├── test_user_factory.py       # 用户工厂测试
+│   │       ├── test_role_factory.py       # 角色工厂测试
+│   │       └── test_permission_factory.py # 权限工厂测试
+│   ├── test_application/          # 应用服务层测试
+│   │   ├── __init__.py
+│   │   ├── test_services/         # 应用服务测试
+│   │   │   ├── __init__.py
+│   │   │   ├── test_user_service.py       # 用户服务测试
+│   │   │   ├── test_role_service.py       # 角色服务测试
+│   │   │   └── test_permission_service.py # 权限服务测试
+│   │   └── test_dtos.py           # DTO测试
+│   ├── test_infrastructure/       # 基础设施层测试
+│   │   ├── __init__.py
+│   │   └── test_persistence/      # 持久化测试
+│   │       ├── __init__.py
+│   │       ├── test_repos/        # 仓储实现测试
+│   │       │   ├── __init__.py
+│   │       │   ├── test_user_repo_impl.py    # 用户仓储实现测试
+│   │       │   ├── test_role_repo_impl.py    # 角色仓储实现测试
+│   │       │   └── test_permission_repo_impl.py # 权限仓储实现测试
+│   │       └── test_migrations/   # 迁移测试
+│   ├── test_interfaces/           # 接口层测试
+│   │   ├── __init__.py
+│   │   └── test_api/              # API测试
+│   │       ├── __init__.py
+│   │       ├── test_controllers/  # 控制器测试
+│   │       │   ├── __init__.py
+│   │       │   ├── test_auth_controller.py   # 认证控制器测试
+│   │       │   ├── test_users_controller.py  # 用户控制器测试
+│   │       │   ├── test_roles_controller.py  # 角色控制器测试
+│   │       │   └── test_permissions_controller.py # 权限控制器测试
+│   │       ├── test_schemas.py    # Schema测试
+│   │       └── test_authentication.py # 认证测试
+│   └── test_user_model.py         # 用户模型测试 (原有测试)
+├── manage.py                      # Django 管理命令行工具
+├── requirements.txt               # 项目依赖
+├── pyproject.toml                 # 项目配置文件
+├── pytest.ini                     # pytest 配置
+├── uv.lock                        # uv 锁文件 (由 uv 自动生成)
+└── dev_tools.py                   # 开发工具脚本
 ```
 
 ## 4. 项目当前状态
@@ -127,6 +186,7 @@ rbac_project/
 - [x] 代码检查工具 (flake8)
 - [x] 类型检查工具 (mypy)
 - [x] 开发工具脚本
+- [x] uv 虚拟环境管理支持
 
 ## 5. 快速开始
 
@@ -134,22 +194,76 @@ rbac_project/
 - Python 3.10+
 - uv (推荐) 或 pip
 
-### 5.2 安装依赖
+### 5.2 使用 uv 管理项目 (推荐)
 
-使用 uv (推荐):
-```bash
-# 安装核心依赖
-uv pip install django django-ninja django-ninja-extra
+uv 是一个极快的 Python 包和项目管理器，我们推荐使用 uv 来管理项目依赖。
 
-# 安装开发依赖
-uv pip install pytest pytest-django black flake8 mypy
+#### 5.2.1 安装 uv
+
+在 Windows 上，使用 PowerShell 运行：
+```powershell
+# 使用 pip 安装
+pip install uv
+
+# 或使用官方安装脚本
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-或使用 pip:
+在 macOS 或 Linux 上，运行：
+```bash
+# 使用 pip 安装
+pip install uv
+
+# 或使用官方安装脚本
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+#### 5.2.2 初始化虚拟环境
+
+```bash
+# 创建虚拟环境
+uv venv
+
+# 激活虚拟环境
+# Windows (cmd)
+venv\Scripts\activate.bat
+
+# Windows (PowerShell)
+venv\Scripts\Activate.ps1
+
+# macOS/Linux
+source venv/bin/activate
+```
+
+#### 5.2.3 安装依赖
+
+对于本项目，我们推荐使用可编辑安装方式来安装所有依赖：
+
+```bash
+# 安装所有依赖（包括开发依赖）
+uv pip install -e .[dev]
+
+# 或者仅安装基本依赖
+uv pip install -e .
+```
+
+或者，如果您更喜欢使用 requirements.txt 文件：
+
 ```bash
 # 安装所有依赖
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
+
+使用 `-e .` 参数的好处是：
+1. 以可编辑模式安装项目依赖
+2. 支持在开发过程中实时看到代码更改
+3. 无需重新安装即可测试代码修改
+
+**常见问题及解决方案**：
+
+如果在安装过程中遇到警告，请参考 [docs\uv_usage.md](file://e:\GitHub\Hello-Django-Ninja\Hello-Django-Ninja\docs\uv_usage.md) 中的说明：
+1. RECORD 文件缺失警告：清理并重新创建虚拟环境
+2. 硬链接失败警告：设置 `UV_LINK_MODE=copy` 环境变量
 
 ### 5.3 数据库设置
 ```bash
@@ -225,6 +339,9 @@ python dev_tools.py format
 
 # 代码检查
 python dev_tools.py check
+
+# 使用 uv 初始化虚拟环境和安装依赖
+python dev_tools.py setup-uv
 ```
 
 ## 8. 项目结构详细说明

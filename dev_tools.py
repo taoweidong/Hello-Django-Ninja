@@ -7,6 +7,7 @@
 import os
 import subprocess
 import argparse
+import sys
 
 
 def run_command(command, shell=True):
@@ -88,6 +89,45 @@ def type_check():
     return run_command("mypy .")
 
 
+def setup_uv():
+    """使用 uv 初始化虚拟环境并安装依赖"""
+    print("使用 uv 初始化虚拟环境...")
+    
+    # 检查 uv 是否已安装
+    if not run_command("uv --version", shell=True):
+        print("未检测到 uv，请先安装 uv:")
+        print("  pip install uv")
+        print("或参考 README.md 中的安装说明")
+        return False
+    
+    # 创建虚拟环境
+    print("创建虚拟环境...")
+    if not run_command("uv venv", shell=True):
+        print("创建虚拟环境失败")
+        return False
+    
+    # 设置 UV_LINK_MODE 环境变量以避免硬链接警告
+    os.environ['UV_LINK_MODE'] = 'copy'
+    
+    # 安装依赖（包括开发依赖）
+    print("安装项目依赖...")
+    if not run_command("uv pip install -e .[dev]", shell=True):
+        print("安装依赖失败，请检查:")
+        print("1. 确保 pyproject.toml 和 setup.py 文件存在且配置正确")
+        print("2. 查看详细错误信息并参考 docs/uv_usage.md")
+        return False
+    
+    print("uv 虚拟环境初始化完成！")
+    print("请使用以下命令激活虚拟环境:")
+    if sys.platform == "win32":
+        print("  Windows (cmd): .venv\\Scripts\\activate.bat")
+        print("  Windows (PowerShell): .venv\\Scripts\\Activate.ps1")
+    else:
+        print("  macOS/Linux: source .venv/bin/activate")
+    
+    return True
+
+
 def main():
     parser = argparse.ArgumentParser(description="开发工具脚本")
     parser.add_argument(
@@ -100,6 +140,7 @@ def main():
             "format",
             "check",
             "typecheck",
+            "setup-uv",
             "all",
         ],
         help="要执行的命令",
@@ -121,6 +162,8 @@ def main():
         check_code()
     elif args.command == "typecheck":
         type_check()
+    elif args.command == "setup-uv":
+        setup_uv()
     elif args.command == "all":
         # 运行所有设置步骤
         run_migrations()

@@ -38,10 +38,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "ninja_extra",  # 添加 ninja_extra
-    "domain",
-    "application",
-    "infrastructure",
-    "interfaces.api",
+    "app.domain",
+    "app.application",
+    "app.infrastructure",
+    "app.interfaces.api",
 ]
 
 MIDDLEWARE = [
@@ -80,7 +80,7 @@ WSGI_APPLICATION = "service.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": BASE_DIR / "db" / "db.sqlite3",
     }
 }
 
