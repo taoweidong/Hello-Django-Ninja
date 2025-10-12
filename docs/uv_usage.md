@@ -110,6 +110,38 @@ uv pip install package-name
 # 然后手动将依赖添加到 pyproject.toml 中
 ```
 
+## 项目清理
+
+使用开发工具脚本可以清理项目中的临时文件和不在版本控制中的文件：
+
+```bash
+# 清理项目临时文件
+python dev_tools.py clean
+```
+
+该命令会根据 .gitignore 文件和其他常见模式识别并删除临时文件，包括：
+- Python 编译文件 (*.pyc, __pycache__/)
+- 虚拟环境目录 (.venv/, venv/)
+- 测试覆盖报告文件 (.coverage, htmlcov/)
+- 日志文件 (*.log)
+- 数据库文件 (*.sqlite3)
+- IDE 配置目录 (.idea/, .vscode/)
+
+## 虚拟环境激活
+
+使用开发工具脚本可以显示当前操作系统的虚拟环境激活命令：
+
+```bash
+# 显示虚拟环境激活命令
+python dev_tools.py activate
+```
+
+该命令会根据您的操作系统显示相应的激活命令：
+- **Windows**: 提供 cmd、PowerShell 和 Git Bash 三种激活方式
+- **macOS/Linux**: 提供标准的 source 命令激活方式
+
+注意：由于操作系统限制，该命令只能显示激活命令，您需要手动复制并执行这些命令来激活虚拟环境。
+
 ## 使用 requirements.txt 安装依赖（替代方式）
 
 如果您不想使用可编辑安装，也可以继续使用 requirements.txt 文件：
@@ -127,3 +159,5 @@ uv pip install -r requirements.txt
 4. 对于本项目，推荐使用 `uv pip install -e .[dev]` 安装所有依赖（包括开发依赖）
 5. 可编辑安装允许您在开发过程中直接修改代码并立即看到更改效果
 6. 遇到警告时，参考上述解决方案进行处理
+7. 定期使用 `python dev_tools.py clean` 清理项目临时文件，保持项目整洁
+8. 使用 `python dev_tools.py activate` 快速获取适合您操作系统的激活命令

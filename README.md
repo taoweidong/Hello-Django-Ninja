@@ -340,8 +340,14 @@ python dev_tools.py format
 # 代码检查
 python dev_tools.py check
 
+# 清理项目临时文件
+python dev_tools.py clean
+
 # 使用 uv 初始化虚拟环境和安装依赖
 python dev_tools.py setup-uv
+
+# 激活虚拟环境（显示对应操作系统的激活命令）
+python dev_tools.py activate
 ```
 
 ## 8. 项目结构详细说明
