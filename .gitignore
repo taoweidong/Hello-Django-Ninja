@@ -19,6 +19,7 @@ ENV/
 # Local configuration
 *.local
 .env.prod
+deploy/.env.prod
 
 # Testing
 .pytest_cache/
@@ -65,4 +66,3 @@ uv.lock
 
 # Docker
 docker-compose.override.yml
-.env.prod

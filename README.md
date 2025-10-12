@@ -242,12 +242,13 @@ python manage.py runserver
 
 2. 复制并修改生产环境配置文件：
    ```bash
-   cp .env.prod.example .env.prod
+   cp deploy/.env.prod.example .env.prod
    # 根据实际需求修改 .env.prod 文件中的配置
    ```
 
 3. 构建并启动服务：
    ```bash
+   cd deploy
    docker-compose up -d
    ```
 

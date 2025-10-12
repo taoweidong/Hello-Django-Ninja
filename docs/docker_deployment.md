@@ -4,10 +4,12 @@
 
 ```
 project/
-├── Dockerfile              # Django 应用 Docker 配置
-├── docker-compose.yml      # Docker Compose 编排文件
-├── nginx.conf             # Nginx 配置文件
-├── .env.prod.example      # 生产环境配置示例
+├── deploy/
+│   ├── Dockerfile              # Django 应用 Docker 配置
+│   ├── docker-compose.yml      # Docker Compose 编排文件
+│   ├── nginx.conf             # Nginx 配置文件
+│   ├── .env.prod.example      # 生产环境配置示例
+│   └── docker-compose.override.yml.example # 开发环境配置示例
 └── ...
 ```
 
@@ -69,23 +71,15 @@ cd Hello-Django-Ninja
 
 复制生产环境配置示例：
 ```bash
-cp .env.prod.example .env.prod
-```
-
-修改 `.env.prod` 文件中的敏感配置：
-```bash
-# 基本配置
-SECRET_KEY=your-very-secret-key-here
-ALLOWED_HOSTS=your-domain.com,www.your-domain.com
-
-# 数据库配置
-DATABASE_URL=mysql://user:password@host:port/database
+cp deploy/.env.prod.example .env.prod
+# 根据实际需求修改 .env.prod 文件中的配置
 ```
 
 ### 4. 构建和启动服务
 
 ```bash
-# 构建并启动所有服务
+# 进入 deploy 目录并构建启动所有服务
+cd deploy
 docker-compose up -d
 
 # 查看服务状态
