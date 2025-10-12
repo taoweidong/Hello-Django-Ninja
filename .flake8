@@ -1,0 +1,5 @@
+[flake8]
+# 忽略行长度检查和一些其他检查
+ignore = E501,W291,W292,W293,E203,E302,E305,F401
+# 排除虚拟环境和迁移文件
+exclude = .venv,*/migrations/*
