@@ -43,7 +43,7 @@ def run_command(command, shell=True):
         
         print(stdout_text)
         if stderr_text:
-            print("错误输出:", stderr_text)
+            print("输出:", stderr_text)
         return True
     except subprocess.CalledProcessError as e:
         print(f"命令执行失败: {e}")
@@ -76,7 +76,7 @@ def run_command(command, shell=True):
             
             print(stdout_text)
             if stderr_text:
-                print("错误输出:", stderr_text)
+                print("输出:", stderr_text)
         except Exception as e2:
             print(f"读取输出失败: {e2}")
         return False
@@ -106,6 +106,62 @@ def run_migrations():
     """运行数据库迁移"""
     print("运行数据库迁移...")
     return run_command("python manage.py migrate")
+
+
+def create_default_superuser():
+    """创建默认超级用户"""
+    print("创建默认超级用户...")
+    
+    # 设置 Django 环境
+    if not setup_django():
+        return False
+    
+    try:
+        # 导入 Django 模型
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        # 检查是否已存在 admin 用户
+        if User.objects.filter(username='admin').exists():
+            print("admin 用户已存在")
+            return True
+        
+        # 创建超级用户
+        user = User.objects.create_superuser(
+            username='admin',
+            email='admin@example.com',
+            password='admin123'
+        )
+        print("默认超级用户创建成功!")
+        print("用户名: admin")
+        print("密码: admin123")
+        print("请务必在生产环境中修改默认密码!")
+        return True
+    except Exception as e:
+        print(f"创建默认超级用户失败: {e}")
+        return False
+
+
+def setup_database():
+    """一键设置数据库：运行迁移并创建默认用户"""
+    print("开始数据库设置...")
+    
+    # 运行数据库迁移
+    if not run_migrations():
+        print("数据库迁移失败")
+        return False
+    
+    # 创建默认超级用户
+    if not create_default_superuser():
+        print("创建默认超级用户失败")
+        return False
+    
+    print("\n数据库设置完成!")
+    print("默认管理员账户:")
+    print("  用户名: admin")
+    print("  密码: admin123")
+    print("\n请务必在生产环境中修改默认密码!")
+    return True
 
 
 def create_superuser():
@@ -360,6 +416,7 @@ def main():
             "setup-uv",
             "activate",
             "clean",
+            "setup-db",  # 新增的命令
             "all",
         ],
         help="要执行的命令",
@@ -387,6 +444,8 @@ def main():
         activate_virtualenv()
     elif args.command == "clean":
         clean_project()
+    elif args.command == "setup-db":  # 新增的命令处理
+        setup_database()
     elif args.command == "all":
         # 运行所有设置步骤
         run_migrations()

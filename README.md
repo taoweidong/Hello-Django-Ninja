@@ -204,13 +204,18 @@ uv pip install -e .
 2. 硬链接失败警告：设置 `UV_LINK_MODE=copy` 环境变量
 
 ### 5.3 数据库设置
-```
-# 运行数据库迁移
-python manage.py migrate
 
-# 创建超级用户
-python manage.py createsuperuser
+使用开发工具脚本一键完成数据库同步和默认用户创建：
+
 ```
+# 一键完成数据库迁移和默认用户创建
+python dev_tools.py setup-db
+```
+
+该命令将自动执行以下操作：
+1. 运行数据库迁移
+2. 创建默认超级用户（用户名: admin, 密码: admin123）
+3. 打印访问信息
 
 ### 5.4 启动开发服务器
 ```
@@ -249,6 +254,12 @@ python dev_tools.py server
 
 # 运行数据库迁移
 python dev_tools.py migrate
+
+# 创建超级用户
+python dev_tools.py superuser
+
+# 一键设置数据库（运行迁移并创建默认用户）
+python dev_tools.py setup-db
 
 # 运行测试
 python dev_tools.py test
@@ -340,7 +351,7 @@ python dev_tools.py activate
 
 ## 总结
 
-本项目提供了一个完整的基于 DDD 和 django-ninja-extra 的 RBAC 系统实现，具有清晰的架构分层和良好的可扩展性。通过使用现代化的 Python 工具链，项目具备了高效的开发体验和良好的代码质量保证。
+本项目提供了一个完整的基于 DDD 和 django-ninja-extra 的 RBAC 系统实现，具有清晰的架构分层和良好的可扩展性。通过使用现代化的 Python 工具链，项目具备了高效的开发体验和良好的代码质量保证.
 
 
 
@@ -352,6 +363,7 @@ python dev_tools.py activate
 - 创建健康检查API文档 (`docs/health_api.md`)
 - 优化uv依赖管理配置和文档说明
 - 添加开发工具脚本的activate和clean命令
+- 添加一键数据库设置命令 (`setup-db`)，自动完成迁移和默认用户创建
 
 ### 2025-10-11
 - 优化uv虚拟环境管理，修复编码和路径问题
