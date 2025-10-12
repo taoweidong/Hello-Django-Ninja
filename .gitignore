@@ -18,7 +18,7 @@ ENV/
 
 # Local configuration
 *.local
-*.env
+.env.prod
 
 # Testing
 .pytest_cache/

@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
+# 导入配置系统
+from service.config import settings
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-_)(6xwxjolsxe7d6=i$jc1f4!53zft3d!a9@w3pi(&ngepkjl&"
+SECRET_KEY = settings.secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = settings.debug
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = settings.allowed_hosts
 
 
 # Application definition
@@ -80,11 +83,58 @@ WSGI_APPLICATION = "service.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
+# 解析数据库URL
+def parse_database_url(db_url):
+    """
+    解析数据库URL，支持SQLite、MySQL、PostgreSQL
+    示例：
+    - SQLite: sqlite:///db/db.sqlite3
+    - MySQL: mysql://user:password@host:port/database
+    - PostgreSQL: postgresql://user:password@host:port/database
+    """
+    if db_url.startswith("sqlite:///"):
+        db_path = db_url.replace("sqlite:///", "")
+        if db_path.startswith("db/"):
+            # 相对路径，转换为绝对路径
+            db_path = BASE_DIR / db_path
+        return {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": db_path,
+        }
+    elif db_url.startswith("mysql://"):
+        # 解析MySQL连接字符串
+        # mysql://user:password@host:port/database
+        from urllib.parse import urlparse
+        parsed = urlparse(db_url)
+        return {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": parsed.path[1:],  # 去掉开头的 '/'
+            "USER": parsed.username,
+            "PASSWORD": parsed.password,
+            "HOST": parsed.hostname,
+            "PORT": str(parsed.port) if parsed.port else "3306",
+        }
+    elif db_url.startswith("postgresql://") or db_url.startswith("postgres://"):
+        # 解析PostgreSQL连接字符串
+        # postgresql://user:password@host:port/database
+        from urllib.parse import urlparse
+        parsed = urlparse(db_url)
+        return {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": parsed.path[1:],  # 去掉开头的 '/'
+            "USER": parsed.username,
+            "PASSWORD": parsed.password,
+            "HOST": parsed.hostname,
+            "PORT": str(parsed.port) if parsed.port else "5432",
+        }
+    # 默认使用SQLite
+    return {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db" / "db.sqlite3",
     }
+
+DATABASES = {
+    "default": parse_database_url(settings.database_url)
 }
 
 
@@ -134,8 +184,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Django Ninja JWT Configuration
 NINJA_JWT = {
-    'ACCESS_TOKEN_LIFETIME': 3600,  # 1 hour
-    'REFRESH_TOKEN_LIFETIME': 86400,  # 1 day
+    'ACCESS_TOKEN_LIFETIME': settings.jwt_access_token_lifetime,  # 1 hour
+    'REFRESH_TOKEN_LIFETIME': settings.jwt_refresh_token_lifetime,  # 1 day
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,
     'UPDATE_LAST_LOGIN': False,
@@ -159,8 +209,8 @@ NINJA_JWT = {
     'JTI_CLAIM': 'jti',
 
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': 3600,
-    'SLIDING_TOKEN_REFRESH_LIFETIME': 86400,
+    'SLIDING_TOKEN_LIFETIME': settings.jwt_access_token_lifetime,
+    'SLIDING_TOKEN_REFRESH_LIFETIME': settings.jwt_refresh_token_lifetime,
 }
 
 # 初始化日志配置
