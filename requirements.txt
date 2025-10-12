@@ -6,6 +6,7 @@ django-ninja-jwt>=5.3.9
 python-dotenv>=0.19.0
 pydantic>=2.5.0
 pydantic-settings>=2.0.0
+gunicorn>=20.1.0
 
 # Development dependencies
 pytest>=7.0.0

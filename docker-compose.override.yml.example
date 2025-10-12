@@ -1,0 +1,26 @@
+# Docker Compose 覆盖文件示例
+# 用于开发环境的自定义配置
+# 复制此文件为 docker-compose.override.yml 并根据需要修改
+
+version: '3.8'
+
+services:
+  web:
+    # 开发环境使用不同的端口
+    ports:
+      - "8000:8000"
+    # 开发环境挂载代码卷以支持热重载
+    volumes:
+      - .:/app
+    # 开发环境使用不同的命令
+    command: python manage.py runserver 0.0.0.0:8000
+    
+  db:
+    # 开发环境暴露数据库端口以便外部工具连接
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: hello_django_ninja_dev
+      MYSQL_USER: django_user
+      MYSQL_PASSWORD: django_password
