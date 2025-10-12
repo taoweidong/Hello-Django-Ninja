@@ -285,12 +285,7 @@ def setup_uv():
         return False
     
     print("uv 虚拟环境初始化完成！")
-    print("请使用以下命令激活虚拟环境:")
-    if sys.platform == "win32":
-        print("  Windows (cmd): .venv\\Scripts\\activate.bat")
-        print("  Windows (PowerShell): .venv\\Scripts\\Activate.ps1")
-    else:
-        print("  macOS/Linux: source .venv/bin/activate")
+    activate_virtualenv()
     
     return True
 
