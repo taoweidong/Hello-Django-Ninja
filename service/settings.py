@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -161,3 +162,11 @@ NINJA_JWT = {
     'SLIDING_TOKEN_LIFETIME': 3600,
     'SLIDING_TOKEN_REFRESH_LIFETIME': 86400,
 }
+
+# 初始化日志配置
+try:
+    from service.logging_config import logger
+    # 在应用启动时记录一条日志
+    logger.info("Django application starting...")
+except Exception as e:
+    print(f"Failed to initialize logging: {e}")
