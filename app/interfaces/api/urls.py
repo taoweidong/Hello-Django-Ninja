@@ -7,6 +7,7 @@ from app.interfaces.api.controllers.auth import AuthController
 from app.interfaces.api.controllers.users import UsersController
 from app.interfaces.api.controllers.roles import RolesController
 from app.interfaces.api.controllers.permissions import PermissionsController
+from app.interfaces.api.controllers.health import HealthController
 
 
 # 创建 API 实例
@@ -18,4 +19,5 @@ api.register_controllers(
     UsersController,
     RolesController,
     PermissionsController,
+    HealthController,
 )

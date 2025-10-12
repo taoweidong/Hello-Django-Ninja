@@ -1,5 +1,25 @@
 # 基于 DDD (领域驱动设计) 和 django-ninja-extra 的 RBAC 系统设计方案
 
+## 更新记录
+
+### 2025-10-12
+- 添加系统健康检查API接口 (`/api/health/` 和 `/api/health/detailed`)
+- 实现健康检查控制器和相关Schema
+- 创建健康检查API文档 (`docs/health_api.md`)
+- 优化uv依赖管理配置和文档说明
+- 添加开发工具脚本的activate和clean命令
+
+### 2025-10-11
+- 优化uv虚拟环境管理，修复编码和路径问题
+- 改进dev_tools.py脚本，增强跨平台兼容性
+- 完善uv使用文档和最佳实践说明
+
+### 2025-10-10
+- 完成项目基础架构搭建
+- 实现RBAC核心功能（用户、角色、权限管理）
+- 集成django-ninja-extra API框架
+- 配置DDD分层架构
+
 ## 1. 项目概述
 
 本方案旨在构建一个基于 Django 框架的 RBAC（Role-Based Access Control）权限管理系统，并严格遵循领域驱动设计 (DDD) 的原则。系统将提供用户管理、角色定义、权限分配及基于 API 的交互接口。我们将深度集成 `django-ninja` 和 `django-ninja-extra`，利用其特性来支撑 DDD 的架构思想。
@@ -201,7 +221,7 @@ uv 是一个极快的 Python 包和项目管理器，我们推荐使用 uv 来�
 #### 5.2.1 安装 uv
 
 在 Windows 上，使用 PowerShell 运行：
-```powershell
+``powershell
 # 使用 pip 安装
 pip install uv
 
@@ -210,7 +230,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 在 macOS 或 Linux 上，运行：
-```bash
+```
 # 使用 pip 安装
 pip install uv
 
@@ -220,7 +240,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 #### 5.2.2 初始化虚拟环境
 
-```bash
+```
 # 创建虚拟环境
 uv venv
 
@@ -239,7 +259,7 @@ source venv/bin/activate
 
 对于本项目，我们推荐使用可编辑安装方式来安装所有依赖：
 
-```bash
+```
 # 安装所有依赖（包括开发依赖）
 uv pip install -e .[dev]
 
@@ -249,7 +269,7 @@ uv pip install -e .
 
 或者，如果您更喜欢使用 requirements.txt 文件：
 
-```bash
+```
 # 安装所有依赖
 uv pip install -r requirements.txt
 ```
@@ -266,7 +286,7 @@ uv pip install -r requirements.txt
 2. 硬链接失败警告：设置 `UV_LINK_MODE=copy` 环境变量
 
 ### 5.3 数据库设置
-```bash
+```
 # 运行数据库迁移
 python manage.py migrate
 
@@ -275,7 +295,7 @@ python manage.py createsuperuser
 ```
 
 ### 5.4 启动开发服务器
-```bash
+```
 python manage.py runserver
 ```
 
@@ -300,10 +320,14 @@ python manage.py runserver
 - `GET /api/permissions/{permission_id}/` - 获取权限信息
 - `GET /api/permissions/` - 获取权限列表
 
+### 6.5 系统健康检查接口
+- `GET /api/health/` - 基本健康检查
+- `GET /api/health/detailed` - 详细健康检查
+
 ## 7. 开发指南
 
 ### 7.1 代码质量
-```bash
+```
 # 代码格式化
 black .
 
@@ -315,7 +339,7 @@ mypy .
 ```
 
 ### 7.2 运行测试
-```bash
+```
 # 运行所有测试
 python manage.py test
 
@@ -324,7 +348,7 @@ python manage.py test tests.test_user_model
 ```
 
 ### 7.3 使用开发工具脚本
-```bash
+```
 # 启动开发服务器
 python dev_tools.py server
 
