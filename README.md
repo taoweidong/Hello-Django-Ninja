@@ -26,8 +26,8 @@
 *   **文档**: django-ninja 自动生成的交互式 API 文档 (Swagger/OpenAPI)
 
 ## 3. 项目结构 (DDD 分层架构)
-```
-bash
+
+```bash
 rbac_project/
 ├── service/                       # 项目主目录 & 配置层
 │   ├── __init__.py
