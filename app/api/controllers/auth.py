@@ -2,17 +2,16 @@
 认证相关 API Controller
 """
 
-from ninja_extra import api_controller, http_post
-from ninja import Schema
 from django.contrib.auth import authenticate
 from django.http import HttpRequest
+from ninja import Schema
+from ninja_extra import api_controller, http_post
 from ninja_jwt.tokens import RefreshToken
-from typing import Any
 
 
 class LoginSchema(Schema):
-    username: str
-    password: str
+    username: str = "admin"
+    password: str = "admin123"
 
 
 class TokenSchema(Schema):

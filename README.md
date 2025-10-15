@@ -146,7 +146,8 @@ uv 是一个极快的 Python 包和项目管理器，我们推荐使用 uv 来�
 #### 5.2.1 安装 uv
 
 在 Windows 上，使用 PowerShell 运行：
-``powershell
+
+```powershell
 # 使用 pip 安装
 pip install uv
 
@@ -155,7 +156,8 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 在 macOS 或 Linux 上，运行：
-```
+
+```bash
 # 使用 pip 安装
 pip install uv
 
@@ -165,7 +167,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 #### 5.2.2 初始化虚拟环境
 
-```
+```bash
 # 创建虚拟环境
 uv venv
 
@@ -207,7 +209,7 @@ uv pip install -e .
 
 使用开发工具脚本一键完成数据库同步和默认用户创建：
 
-```
+```bash
 # 一键完成数据库迁移和默认用户创建
 python dev_tools.py setup-db
 ```
@@ -218,7 +220,8 @@ python dev_tools.py setup-db
 3. 打印访问信息
 
 ### 5.4 启动开发服务器
-```
+
+```python
 python manage.py runserver
 ```
 
@@ -229,42 +232,49 @@ python manage.py runserver
 项目支持使用 Docker 和 Docker Compose 进行容器化部署。
 
 ### 6.1 环境要求
+
 - Docker 20.10+
 - Docker Compose 1.29+
 
 ### 6.2 部署步骤
 
-1. 克隆项目代码：
-   ```bash
-   git clone https://github.com/nineaiyu/Hello-Django-Ninja.git
-   cd Hello-Django-Ninja
-   ```
+1.克隆项目代码：
 
-2. 复制并修改生产环境配置文件：
-   ```bash
-   cp deploy/.env.prod.example .env.prod
-   # 根据实际需求修改 .env.prod 文件中的配置
-   ```
+```bash
+git clone https://github.com/nineaiyu/Hello-Django-Ninja.git
+cd Hello-Django-Ninja
+```
 
-3. 构建并启动服务：
-   ```bash
-   cd deploy
-   docker-compose up -d
-   ```
+2.复制并修改生产环境配置文件：
 
-4. 运行数据库迁移：
-   ```bash
-   docker-compose exec web python manage.py migrate
-   ```
+```bash
+cp deploy/.env.prod.example .env.prod
+# 根据实际需求修改 .env.prod 文件中的配置
+```
 
-5. 创建超级用户：
-   ```bash
-   docker-compose exec web python manage.py createsuperuser
-   ```
+3.构建并启动服务：
 
-6. 访问应用：
-   - API 文档: http://localhost/api/docs
-   - 管理后台: http://localhost/admin
+```bash
+cd deploy
+docker-compose up -d
+```
+
+4.运行数据库迁移：
+
+```bash
+docker-compose exec web python manage.py migrate
+```
+
+5.创建超级用户：
+
+```bash
+docker-compose exec web python manage.py createsuperuser
+```
+
+6.访问应用：
+
+- API 文档: http://localhost/api/docs
+- 管理后台: http://localhost/admin
 
 ### 6.3 常用 Docker Compose 命令
 

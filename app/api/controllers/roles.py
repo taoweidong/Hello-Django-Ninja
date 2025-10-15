@@ -3,11 +3,11 @@
 """
 
 from ninja_extra import api_controller, http_get, http_post, permissions
-from ninja import Schema
+
 from app.application.services.role_service import RoleService
-from app.interfaces.api.schemas import RoleOut, RoleCreate
 from app.common.exceptions import BusinessException
 from app.infrastructure.persistence.repos.role_repo_impl import DjangoORMRoleRepository
+from app.api.schemas import RoleOut, RoleCreate
 
 
 @api_controller("/roles", permissions=[permissions.IsAuthenticated])

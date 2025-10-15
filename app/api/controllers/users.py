@@ -2,15 +2,15 @@
 用户管理 API Controller
 """
 
-from ninja_extra import api_controller, http_get, http_post
-from ninja import Schema
-from app.application.services.user_service import UserService
-from app.interfaces.api.schemas import UserOut, UserCreate
-from app.common.exceptions import BusinessException
-from app.infrastructure.persistence.repos.user_repo_impl import DjangoORMUserRepository
-from app.domain.models.user import User
 from django.core.exceptions import ObjectDoesNotExist
+from ninja_extra import api_controller, http_get, http_post
 from ninja_jwt.authentication import JWTAuth
+
+from app.application.services.user_service import UserService
+from app.common.exceptions import BusinessException
+from app.domain.models.user import User
+from app.infrastructure.persistence.repos.user_repo_impl import DjangoORMUserRepository
+from app.api.schemas import UserOut, UserCreate
 
 
 @api_controller("/users", auth=JWTAuth())

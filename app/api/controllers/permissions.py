@@ -3,13 +3,13 @@
 """
 
 from ninja_extra import api_controller, http_get, permissions
-from ninja import Schema
+
 from app.application.services.permission_service import PermissionService
-from app.interfaces.api.schemas import PermissionOut
 from app.common.exceptions import BusinessException
 from app.infrastructure.persistence.repos.permission_repo_impl import (
     DjangoORMPermissionRepository,
 )
+from app.api.schemas import PermissionOut
 
 
 @api_controller("/permissions", permissions=[permissions.IsAuthenticated])

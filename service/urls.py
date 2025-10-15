@@ -17,9 +17,10 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from app.interfaces.api.urls import api
+
+from service.ninja_extra_api import ninja_extra_api
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", api.urls),
+    path("api/", ninja_extra_api.urls),
 ]

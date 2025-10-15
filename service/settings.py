@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     "app.domain",
     "app.application",
     "app.infrastructure",
-    "app.interfaces.api",
+    "app.api",
 ]
 
 MIDDLEWARE = [
