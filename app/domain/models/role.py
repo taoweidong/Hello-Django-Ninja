@@ -3,16 +3,25 @@
 """
 
 from django.db import models
+from django.utils import timezone
+from .user import User
 
 
 class Role(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(blank=True)
-    permissions = models.ManyToManyField("auth.Permission", blank=True)
+    id = models.CharField(max_length=32, primary_key=True)
+    created_time = models.DateTimeField(default=timezone.now)
+    updated_time = models.DateTimeField(default=timezone.now)
+    description = models.CharField(max_length=256, null=True, blank=True)
+    name = models.CharField(max_length=128, unique=True)
+    code = models.CharField(max_length=128, unique=True, default="")
+    is_active = models.BooleanField(default=True)
+    
+    # 外键关系
+    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_roles')
+    modifier = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='modified_roles')
+    
+    class Meta:
+        db_table = 'system_userrole'
 
     def __str__(self) -> str:
         return str(self.name)
-
-    @property
-    def id(self) -> int:
-        return self.pk

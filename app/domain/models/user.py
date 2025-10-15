@@ -3,10 +3,28 @@
 """
 
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
+from .department import Department
 
 
 class User(AbstractUser):
+    mode_type = models.SmallIntegerField(default=1)  # 添加默认值
+    created_time = models.DateTimeField(default=timezone.now)
+    updated_time = models.DateTimeField(default=timezone.now)
+    description = models.CharField(max_length=256, null=True, blank=True)
+    avatar = models.CharField(max_length=100, null=True, blank=True)
+    nickname = models.CharField(max_length=150)
+    gender = models.IntegerField(default=0)  # 添加默认值
+    phone = models.CharField(max_length=16)
+    email = models.CharField(max_length=254)
+    
+    # 外键关系
+    creator = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='created_users')
+    modifier = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='modified_users')
+    dept = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='users')
+    dept_belong = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='belong_users')
+    
     # 添加 related_name 以避免与 Django 内置 User 模型冲突
     groups = models.ManyToManyField(
         "auth.Group",
@@ -22,6 +40,9 @@ class User(AbstractUser):
         help_text="Specific permissions for this user.",
         verbose_name="user permissions",
     )
+    
+    class Meta(AbstractUser.Meta):
+        db_table = 'system_userinfo'
 
     @property
     def id(self) -> int:

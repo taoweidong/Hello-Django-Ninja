@@ -10,6 +10,12 @@ from app.api.controllers.health import HealthController
 from app.api.controllers.permissions import PermissionsController
 from app.api.controllers.roles import RolesController
 from app.api.controllers.users import UsersController
+from app.api.controllers.departments import DepartmentsController
+from app.api.controllers.menus import MenusController
+from app.api.controllers.menu_metas import MenuMetasController
+from app.api.controllers.system_configs import SystemConfigsController
+from app.api.controllers.login_logs import LoginLogsController
+from app.api.controllers.operation_logs import OperationLogsController
 from service import settings
 
 # 创建 API 实例，添加更多元数据和配置
@@ -29,6 +35,12 @@ ninja_extra_api.register_controllers(
     RolesController,
     PermissionsController,
     HealthController,
+    DepartmentsController,
+    MenusController,
+    MenuMetasController,
+    SystemConfigsController,
+    LoginLogsController,
+    OperationLogsController,
 )
 
 # 打印完整的API文档地址
