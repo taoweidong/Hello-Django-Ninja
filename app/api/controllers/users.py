@@ -2,14 +2,11 @@
 用户管理 API Controller
 """
 
-from django.core.exceptions import ObjectDoesNotExist
-from django.apps import apps
 from ninja_extra import api_controller, http_get, http_post, http_put, http_delete
 from ninja_jwt.authentication import JWTAuth
 
 from app.application.services.user_service import UserService
 from app.common.exceptions import BusinessException
-from app.domain.models.user import User
 from app.infrastructure.persistence.repos.user_repo_impl import DjangoORMUserRepository
 from app.api.schemas import UserOut, UserCreate, UserUpdate
 
@@ -34,61 +31,43 @@ class UsersController:
 
     @http_get("/{user_id}", response=UserOut)
     def get_user(self, user_id: int):
-        # 实现获取用户的逻辑
+        # 通过service层获取用户数据
         try:
-            # 注意：这里应该通过service层获取用户数据
-            user = User.objects.get(id=user_id)
-            return UserOut(
-                id=user.id,
-                username=user.username,
-                email=user.email
-            )
-        except ObjectDoesNotExist:
-            return 404, {"message": "User not found"}
+            user_data = self.service.get_user(user_id)
+            return user_data
+        except BusinessException as e:
+            return 400, {"message": str(e)}
 
     @http_get("/", response=list[UserOut])
     def list_users(self):
-        # 实现列出所有用户的逻辑
-        users = User.objects.all()
-        return [
-            UserOut(
-                id=user.id,
-                username=user.username,
-                email=user.email
-            )
-            for user in users
-        ]
+        # 通过service层获取所有用户数据
+        try:
+            users_data = self.service.list_users()
+            return users_data
+        except Exception as e:
+            return 400, {"message": str(e)}
 
     @http_put("/{user_id}", response=UserOut)
     def update_user(self, user_id: int, payload: UserUpdate):
         try:
-            UserModel = apps.get_model("domain", "User")
-            user = UserModel.objects.get(id=user_id)
-            if payload.username is not None:
-                user.username = payload.username
-            if payload.email is not None:
-                user.email = payload.email
-            if payload.password is not None:
-                user.set_password(payload.password)
-            user.save()
-            return UserOut(
-                id=user.id,
-                username=user.username,
-                email=user.email
+            user_data = self.service.update_user(
+                user_id=user_id,
+                username=payload.username,
+                email=payload.email,
+                password=payload.password
             )
-        except ObjectDoesNotExist:
-            return 404, {"message": "User not found"}
+            return user_data
+        except BusinessException as e:
+            return 400, {"message": str(e)}
         except Exception as e:
             return 400, {"message": str(e)}
 
     @http_delete("/{user_id}", response={204: None})
     def delete_user(self, user_id: int):
         try:
-            UserModel = apps.get_model("domain", "User")
-            user = UserModel.objects.get(id=user_id)
-            user.delete()
+            self.service.delete_user(user_id)
             return 204, None
-        except ObjectDoesNotExist:
-            return 404, {"message": "User not found"}
+        except BusinessException as e:
+            return 400, {"message": str(e)}
         except Exception as e:
             return 400, {"message": str(e)}

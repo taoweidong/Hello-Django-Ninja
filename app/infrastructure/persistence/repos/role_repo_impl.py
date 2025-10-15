@@ -7,12 +7,15 @@ from app.domain.models.role import Role
 from django.core.exceptions import ObjectDoesNotExist
 from typing import Optional, List
 from django.apps import apps
+from .base_repository import BaseRepository
 
 
-class DjangoORMRoleRepository(RoleRepository):
+class DjangoORMRoleRepository(RoleRepository, BaseRepository[Role]):
     def __init__(self):
         # 获取实际的 Django 模型类
         self.RoleModel = apps.get_model("domain", "Role")
+        # 初始化基类
+        BaseRepository.__init__(self, self.RoleModel)
 
     def save(self, role: Role) -> None:
         role.save()

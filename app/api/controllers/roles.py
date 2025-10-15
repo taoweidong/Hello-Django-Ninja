@@ -2,7 +2,6 @@
 角色管理 API Controller
 """
 
-from django.core.exceptions import ObjectDoesNotExist
 from ninja_extra import api_controller, http_get, http_post, http_put, http_delete, permissions
 from ninja_jwt.authentication import JWTAuth
 
@@ -30,69 +29,44 @@ class RolesController:
 
     @http_get("/{role_id}", response=RoleOut)
     def get_role(self, role_id: str):
-        # 实现获取角色的逻辑
+        # 通过service层获取角色数据
         try:
-            from django.apps import apps
-            RoleModel = apps.get_model("domain", "Role")
-            role = RoleModel.objects.get(id=role_id)
-            return RoleOut(
-                id=role.id,
-                name=role.name,
-                description=role.description
-            )
-        except ObjectDoesNotExist:
-            return 404, {"message": "Role not found"}
+            role_data = self.service.get_role(int(role_id))
+            return role_data
+        except BusinessException as e:
+            return 400, {"message": str(e)}
         except Exception as e:
             return 400, {"message": str(e)}
 
     @http_get("/", response=list[RoleOut])
     def list_roles(self):
-        # 实现列出所有角色的逻辑
+        # 通过service层获取所有角色数据
         try:
-            from django.apps import apps
-            RoleModel = apps.get_model("domain", "Role")
-            roles = RoleModel.objects.all()
-            return [
-                RoleOut(
-                    id=role.id,
-                    name=role.name,
-                    description=role.description
-                )
-                for role in roles
-            ]
+            roles_data = self.service.list_roles()
+            return roles_data
         except Exception as e:
             return 400, {"message": str(e)}
 
     @http_put("/{role_id}", response=RoleOut)
     def update_role(self, role_id: str, payload: RoleUpdate):
         try:
-            from django.apps import apps
-            RoleModel = apps.get_model("domain", "Role")
-            role = RoleModel.objects.get(id=role_id)
-            if payload.name is not None:
-                role.name = payload.name
-            if payload.description is not None:
-                role.description = payload.description
-            role.save()
-            return RoleOut(
-                id=role.id,
-                name=role.name,
-                description=role.description
+            role_data = self.service.update_role(
+                int(role_id), 
+                name=payload.name, 
+                description=payload.description
             )
-        except ObjectDoesNotExist:
-            return 404, {"message": "Role not found"}
+            return role_data
+        except BusinessException as e:
+            return 400, {"message": str(e)}
         except Exception as e:
             return 400, {"message": str(e)}
 
     @http_delete("/{role_id}", response={204: None})
     def delete_role(self, role_id: str):
         try:
-            from django.apps import apps
-            RoleModel = apps.get_model("domain", "Role")
-            role = RoleModel.objects.get(id=role_id)
-            role.delete()
+            self.service.delete_role(int(role_id))
             return 204, None
-        except ObjectDoesNotExist:
-            return 404, {"message": "Role not found"}
+        except BusinessException as e:
+            return 400, {"message": str(e)}
         except Exception as e:
             return 400, {"message": str(e)}

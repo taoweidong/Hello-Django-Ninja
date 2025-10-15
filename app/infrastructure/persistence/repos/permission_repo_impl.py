@@ -6,9 +6,14 @@ from app.domain.repositories.permission_repository import PermissionRepository
 from django.contrib.auth.models import Permission
 from django.core.exceptions import ObjectDoesNotExist
 from typing import Optional, List
+from .base_repository import BaseRepository
 
 
-class DjangoORMPermissionRepository(PermissionRepository):
+class DjangoORMPermissionRepository(PermissionRepository, BaseRepository[Permission]):
+    def __init__(self):
+        # 初始化基类
+        BaseRepository.__init__(self, Permission)
+
     def save(self, permission: Permission) -> None:
         permission.save()
 

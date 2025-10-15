@@ -7,12 +7,15 @@ from app.domain.models.user import User
 from django.core.exceptions import ObjectDoesNotExist
 from typing import Optional, List
 from django.apps import apps
+from .base_repository import BaseRepository
 
 
-class DjangoORMUserRepository(UserRepository):
+class DjangoORMUserRepository(UserRepository, BaseRepository[User]):
     def __init__(self):
         # 获取实际的 Django 模型类
         self.UserModel = apps.get_model("domain", "User")
+        # 初始化基类
+        BaseRepository.__init__(self, self.UserModel)
 
     def save(self, user: User) -> None:
         user.save()
