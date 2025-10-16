@@ -8,7 +8,8 @@ from ninja_jwt.authentication import JWTAuth
 from app.application.services.role_service import RoleService
 from app.common.exceptions import BusinessException
 from app.infrastructure.persistence.repos.role_repo_impl import DjangoORMRoleRepository
-from app.api.schemas import RoleOut, RoleCreate, RoleUpdate
+from app.api.schemas import RoleOut, RoleCreate, RoleUpdate, ApiResponse
+from app.common.api_response import success, error, not_found
 
 
 @api_controller("/roles", auth=JWTAuth())
@@ -19,54 +20,63 @@ class RolesController:
         # 实例化应用服务
         self.service = RoleService(role_repo)
 
-    @http_post("/", response={201: RoleOut})
+    @http_post("/", response=ApiResponse[RoleOut])
     def create_role(self, payload: RoleCreate):
         try:
             role_data = self.service.create_role(payload.name, payload.description)
-            return 201, role_data
+            return success(role_data, "Role created successfully", 201)
         except BusinessException as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
 
-    @http_get("/{role_id}", response=RoleOut)
+    @http_get("/{role_id}", response=ApiResponse[RoleOut])
     def get_role(self, role_id: str):
         # 通过service层获取角色数据
         try:
-            role_data = self.service.get_role(int(role_id))
-            return role_data
+            role_data = self.service.get_role(role_id)
+            if role_data:
+                return success(role_data, "Role retrieved successfully")
+            else:
+                return not_found("Role not found")
         except BusinessException as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
         except Exception as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
 
-    @http_get("/", response=list[RoleOut])
+    @http_get("/", response=ApiResponse[list[RoleOut]])
     def list_roles(self):
         # 通过service层获取所有角色数据
         try:
             roles_data = self.service.list_roles()
-            return roles_data
+            return success(roles_data, "Roles retrieved successfully")
         except Exception as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
 
-    @http_put("/{role_id}", response=RoleOut)
+    @http_put("/{role_id}", response=ApiResponse[RoleOut])
     def update_role(self, role_id: str, payload: RoleUpdate):
         try:
+            # 只传递非空值进行更新
+            update_kwargs = {}
+            if payload.name is not None:
+                update_kwargs['name'] = payload.name
+            if payload.description is not None:
+                update_kwargs['description'] = payload.description
+                
             role_data = self.service.update_role(
-                int(role_id), 
-                name=payload.name, 
-                description=payload.description
+                role_id, 
+                **update_kwargs
             )
-            return role_data
+            return success(role_data, "Role updated successfully")
         except BusinessException as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
         except Exception as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
 
-    @http_delete("/{role_id}", response={204: None})
+    @http_delete("/{role_id}", response=ApiResponse[None])
     def delete_role(self, role_id: str):
         try:
-            self.service.delete_role(int(role_id))
-            return 204, None
+            self.service.delete_role(role_id)
+            return success(None, "Role deleted successfully")
         except BusinessException as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
         except Exception as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)

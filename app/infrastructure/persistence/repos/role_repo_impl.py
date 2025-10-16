@@ -5,7 +5,7 @@
 from app.domain.repositories.role_repository import RoleRepository
 from app.domain.models.role import Role
 from django.core.exceptions import ObjectDoesNotExist
-from typing import Optional, List
+from typing import Optional, List, Union
 from django.apps import apps
 from .base_repository import BaseRepository
 
@@ -20,8 +20,11 @@ class DjangoORMRoleRepository(RoleRepository, BaseRepository[Role]):
     def save(self, role: Role) -> None:
         role.save()
 
-    def find_by_id(self, role_id: int) -> Optional[Role]:
+    def find_by_id(self, role_id: Union[str, int]) -> Optional[Role]:
         try:
+            # 如果传入的是整数，转换为字符串
+            if isinstance(role_id, int):
+                role_id = str(role_id)
             return self.RoleModel.objects.get(pk=role_id)
         except ObjectDoesNotExist:
             return None
@@ -32,8 +35,11 @@ class DjangoORMRoleRepository(RoleRepository, BaseRepository[Role]):
         except ObjectDoesNotExist:
             return None
 
-    def delete(self, role_id: int) -> bool:
+    def delete(self, role_id: Union[str, int]) -> bool:
         try:
+            # 如果传入的是整数，转换为字符串
+            if isinstance(role_id, int):
+                role_id = str(role_id)
             role = self.RoleModel.objects.get(pk=role_id)
             role.delete()
             return True
@@ -43,8 +49,11 @@ class DjangoORMRoleRepository(RoleRepository, BaseRepository[Role]):
     def list_all(self) -> List[Role]:
         return list(self.RoleModel.objects.all())
 
-    def assign_permissions(self, role_id: int, permission_ids: List[int]) -> None:
+    def assign_permissions(self, role_id: Union[str, int], permission_ids: List[int]) -> None:
         try:
+            # 如果传入的是整数，转换为字符串
+            if isinstance(role_id, int):
+                role_id = str(role_id)
             role = self.RoleModel.objects.get(pk=role_id)
             role.permissions.set(permission_ids)
         except ObjectDoesNotExist:

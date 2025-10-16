@@ -3,7 +3,7 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional, List
+from typing import Optional, List, Union
 from app.domain.models.role import Role
 
 
@@ -13,7 +13,7 @@ class RoleRepository(ABC):
         pass
 
     @abstractmethod
-    def find_by_id(self, role_id: int) -> Optional[Role]:
+    def find_by_id(self, role_id: Union[str, int]) -> Optional[Role]:
         pass
 
     @abstractmethod
@@ -21,7 +21,7 @@ class RoleRepository(ABC):
         pass
 
     @abstractmethod
-    def delete(self, role_id: int) -> bool:
+    def delete(self, role_id: Union[str, int]) -> bool:
         pass
 
     @abstractmethod
@@ -29,5 +29,5 @@ class RoleRepository(ABC):
         pass
 
     @abstractmethod
-    def assign_permissions(self, role_id: int, permission_ids: List[int]) -> None:
+    def assign_permissions(self, role_id: Union[str, int], permission_ids: List[int]) -> None:
         pass

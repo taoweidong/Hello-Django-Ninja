@@ -14,25 +14,28 @@ from ninja_extra import api_controller, http_get
 
 from app.api.schemas import (
     HealthCheckSchema,
-    DetailedHealthCheckSchema
+    DetailedHealthCheckSchema,
+    ApiResponse
 )
+from app.common.api_response import success
 
 
 @api_controller("/health", auth=None)
 class HealthController:
     """健康检查控制器"""
 
-    @http_get("/", response=HealthCheckSchema)
+    @http_get("/", response=ApiResponse[HealthCheckSchema])
     def health_check(self, request: HttpRequest):
         """基本健康检查接口"""
-        return {
+        health_data = {
             "status": "healthy",
             "timestamp": datetime.now(),
             "service": "Hello-Django-Ninja",
             "version": "1.0.0"
         }
+        return success(health_data, "Health check successful")
 
-    @http_get("/detailed", response=DetailedHealthCheckSchema, auth=None)
+    @http_get("/detailed", response=ApiResponse[DetailedHealthCheckSchema], auth=None)
     def detailed_health_check(self, request: HttpRequest):
         """详细健康检查接口"""
         # 检查数据库连接
@@ -44,7 +47,7 @@ class HealthController:
         # 获取依赖信息
         dependencies = self._get_dependencies()
 
-        return {
+        detailed_data = {
             "status": "healthy" if db_status == "connected" else "unhealthy",
             "timestamp": datetime.now(),
             "service": "Hello-Django-Ninja",
@@ -53,6 +56,7 @@ class HealthController:
             "database_status": db_status,
             "dependencies": dependencies
         }
+        return success(detailed_data, "Detailed health check successful")
 
     def _check_database(self) -> str:
         """检查数据库连接状态"""

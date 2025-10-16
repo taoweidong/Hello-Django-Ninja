@@ -5,7 +5,7 @@
 from app.domain.repositories.role_repository import RoleRepository
 from app.domain.models.role import Role
 from app.common.exceptions import BusinessException
-from typing import List
+from typing import List, Union
 
 
 class RoleService:
@@ -22,19 +22,27 @@ class RoleService:
         self.role_repo.save(role)
         return {"id": role.id, "name": role.name, "description": role.description}
 
-    def get_role(self, role_id: int) -> dict:
+    def get_role(self, role_id: Union[str, int]) -> dict:
         """
         根据ID获取角色
         """
+        # 如果传入的是整数，转换为字符串
+        if isinstance(role_id, int):
+            role_id = str(role_id)
+            
         role = self.role_repo.find_by_id(role_id)
         if not role:
             raise BusinessException(f"Role with id '{role_id}' not found.")
         return {"id": role.id, "name": role.name, "description": role.description}
 
-    def update_role(self, role_id: int, name: str = None, description: str = None) -> dict:
+    def update_role(self, role_id: Union[str, int], name: str = None, description: str = None) -> dict:
         """
         更新角色信息
         """
+        # 如果传入的是整数，转换为字符串
+        if isinstance(role_id, int):
+            role_id = str(role_id)
+            
         role = self.role_repo.find_by_id(role_id)
         if not role:
             raise BusinessException(f"Role with id '{role_id}' not found.")
@@ -47,10 +55,14 @@ class RoleService:
         self.role_repo.save(role)
         return {"id": role.id, "name": role.name, "description": role.description}
 
-    def delete_role(self, role_id: int) -> bool:
+    def delete_role(self, role_id: Union[str, int]) -> bool:
         """
         删除角色
         """
+        # 如果传入的是整数，转换为字符串
+        if isinstance(role_id, int):
+            role_id = str(role_id)
+            
         result = self.role_repo.delete(role_id)
         if not result:
             raise BusinessException(f"Role with id '{role_id}' not found.")
@@ -64,10 +76,14 @@ class RoleService:
         return [{"id": role.id, "name": role.name, "description": role.description} for role in roles]
 
     def assign_permissions_to_role(
-        self, role_id: int, permission_ids: List[int]
+        self, role_id: Union[str, int], permission_ids: List[int]
     ) -> None:
         """
         为角色分配权限
         """
+        # 如果传入的是整数，转换为字符串
+        if isinstance(role_id, int):
+            role_id = str(role_id)
+            
         # 业务逻辑校验
         self.role_repo.assign_permissions(role_id, permission_ids)

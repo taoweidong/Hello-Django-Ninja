@@ -3,6 +3,7 @@
 """
 
 from django.test import TestCase
+from django.db import IntegrityError
 from app.domain.models.role import Role
 
 
@@ -28,8 +29,21 @@ class TestRoleModel(TestCase):
 
     def test_role_unique_name(self):
         """测试角色名称唯一性"""
+        # 创建第一个角色
         role1 = Role(name="unique_role", description="Unique role")
         role1.save()
-        with self.assertRaises(Exception):
-            role2 = Role(name="unique_role", description="Duplicate role")
+        
+        # 确保第一个角色已保存
+        self.assertIsNotNone(role1.pk)
+        
+        # 尝试创建具有相同名称的角色，应该抛出IntegrityError
+        role2 = Role(name="unique_role", description="Duplicate role")
+        try:
             role2.save()
+            self.fail("Expected IntegrityError was not raised")
+        except IntegrityError:
+            # 这是我们期望的异常
+            pass
+        except Exception as e:
+            # 如果抛出了其他异常，测试会失败并显示异常信息
+            self.fail(f"Expected IntegrityError, but got {type(e).__name__}: {e}")

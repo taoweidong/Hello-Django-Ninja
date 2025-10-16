@@ -14,10 +14,10 @@ class User(AbstractUser):
     updated_time = models.DateTimeField(default=timezone.now)
     description = models.CharField(max_length=256, null=True, blank=True)
     avatar = models.CharField(max_length=100, null=True, blank=True)
-    nickname = models.CharField(max_length=150)
+    nickname = models.CharField(max_length=150, default="")  # 添加默认值
     gender = models.IntegerField(default=0)  # 添加默认值
-    phone = models.CharField(max_length=16)
-    email = models.CharField(max_length=254)
+    phone = models.CharField(max_length=16, default="")  # 添加默认值
+    email = models.CharField(max_length=254, default="")  # 添加默认值
     
     # 外键关系
     creator = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='created_users')

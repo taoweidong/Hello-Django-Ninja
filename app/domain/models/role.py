@@ -5,10 +5,15 @@
 from django.db import models
 from django.utils import timezone
 from .user import User
+import uuid
+
+
+def generate_role_id():
+    return uuid.uuid4().hex[:32]
 
 
 class Role(models.Model):
-    id = models.CharField(max_length=32, primary_key=True)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_role_id)
     created_time = models.DateTimeField(default=timezone.now)
     updated_time = models.DateTimeField(default=timezone.now)
     description = models.CharField(max_length=256, null=True, blank=True)

@@ -3,7 +3,7 @@
 """
 
 from django.core.exceptions import ObjectDoesNotExist
-from typing import TypeVar, Generic, Optional, List, Type
+from typing import TypeVar, Generic, Optional, List, Type, Union
 
 T = TypeVar('T')  # 泛型类型变量，代表模型类
 
@@ -18,42 +18,48 @@ class BaseRepository(Generic[T]):
         """
         self.model_class = model_class
 
-    def save(self, entity: T) -> None:
+    def save(self, role: T) -> None:
         """
         保存实体
         
         Args:
-            entity: 要保存的实体对象
+            role: 要保存的实体对象
         """
-        entity.save()
+        role.save()
 
-    def find_by_id(self, entity_id: int) -> Optional[T]:
+    def find_by_id(self, role_id: Union[int, str]) -> Optional[T]:
         """
         根据ID查找实体
         
         Args:
-            entity_id: 实体ID
+            role_id: 实体ID
             
         Returns:
             实体对象或None
         """
         try:
-            return self.model_class.objects.get(pk=entity_id)
+            # 如果传入的是整数，转换为字符串
+            if isinstance(role_id, int):
+                role_id = str(role_id)
+            return self.model_class.objects.get(pk=role_id)
         except ObjectDoesNotExist:
             return None
 
-    def delete(self, entity_id: int) -> bool:
+    def delete(self, role_id: Union[int, str]) -> bool:
         """
         根据ID删除实体
         
         Args:
-            entity_id: 实体ID
+            role_id: 实体ID
             
         Returns:
             删除成功返回True，否则返回False
         """
         try:
-            entity = self.model_class.objects.get(pk=entity_id)
+            # 如果传入的是整数，转换为字符串
+            if isinstance(role_id, int):
+                role_id = str(role_id)
+            entity = self.model_class.objects.get(pk=role_id)
             entity.delete()
             return True
         except ObjectDoesNotExist:

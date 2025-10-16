@@ -3,8 +3,20 @@ API 输入输出 Schema (DTOs)
 """
 
 from ninja import Schema
-from typing import List, Optional
+from typing import List, Optional, TypeVar, Generic
 from datetime import datetime
+from typing import TypeVar, Generic, Union
+
+
+# 定义泛型类型变量
+T = TypeVar('T')
+
+class ApiResponse(Schema, Generic[T]):
+    """统一API响应格式"""
+    code: int
+    message: str
+    data: Optional[T] = None
+    timestamp: datetime
 
 
 class RoleCreate(Schema):
