@@ -23,6 +23,49 @@ class UserService:
         self.user_repo.save(user)
         return {"id": user.id, "username": user.username, "email": user.email}
 
+    def get_user(self, user_id: int) -> dict:
+        """
+        根据ID获取用户
+        """
+        user = self.user_repo.find_by_id(user_id)
+        if not user:
+            raise BusinessException(f"User with id '{user_id}' not found.")
+        return {"id": user.id, "username": user.username, "email": user.email}
+
+    def update_user(self, user_id: int, username: str = None, email: str = None, password: str = None) -> dict:
+        """
+        更新用户信息
+        """
+        user = self.user_repo.find_by_id(user_id)
+        if not user:
+            raise BusinessException(f"User with id '{user_id}' not found.")
+        
+        if username is not None:
+            user.username = username
+        if email is not None:
+            user.email = email
+        if password is not None:
+            user.set_password(password)
+        
+        self.user_repo.save(user)
+        return {"id": user.id, "username": user.username, "email": user.email}
+
+    def delete_user(self, user_id: int) -> bool:
+        """
+        删除用户
+        """
+        result = self.user_repo.delete(user_id)
+        if not result:
+            raise BusinessException(f"User with id '{user_id}' not found.")
+        return result
+
+    def list_users(self) -> List[dict]:
+        """
+        获取所有用户列表
+        """
+        users = self.user_repo.list_all()
+        return [{"id": user.id, "username": user.username, "email": user.email} for user in users]
+
     def assign_role_to_user(self, user_id: int, role_id: int) -> None:
         """
         为用户分配角色

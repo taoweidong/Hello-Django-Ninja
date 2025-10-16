@@ -22,6 +22,47 @@ class RoleService:
         self.role_repo.save(role)
         return {"id": role.id, "name": role.name, "description": role.description}
 
+    def get_role(self, role_id: int) -> dict:
+        """
+        根据ID获取角色
+        """
+        role = self.role_repo.find_by_id(role_id)
+        if not role:
+            raise BusinessException(f"Role with id '{role_id}' not found.")
+        return {"id": role.id, "name": role.name, "description": role.description}
+
+    def update_role(self, role_id: int, name: str = None, description: str = None) -> dict:
+        """
+        更新角色信息
+        """
+        role = self.role_repo.find_by_id(role_id)
+        if not role:
+            raise BusinessException(f"Role with id '{role_id}' not found.")
+        
+        if name is not None:
+            role.name = name
+        if description is not None:
+            role.description = description
+        
+        self.role_repo.save(role)
+        return {"id": role.id, "name": role.name, "description": role.description}
+
+    def delete_role(self, role_id: int) -> bool:
+        """
+        删除角色
+        """
+        result = self.role_repo.delete(role_id)
+        if not result:
+            raise BusinessException(f"Role with id '{role_id}' not found.")
+        return result
+
+    def list_roles(self) -> List[dict]:
+        """
+        获取所有角色列表
+        """
+        roles = self.role_repo.list_all()
+        return [{"id": role.id, "name": role.name, "description": role.description} for role in roles]
+
     def assign_permissions_to_role(
         self, role_id: int, permission_ids: List[int]
     ) -> None:
