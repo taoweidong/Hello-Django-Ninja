@@ -24,6 +24,7 @@ class Department(models.Model):
     
     class Meta:
         db_table = 'system_deptinfo'
+        app_label = 'domain'
     
     def __str__(self) -> str:
         return str(self.name)

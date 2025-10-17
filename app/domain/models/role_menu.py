@@ -1,19 +1,22 @@
 """
-角色菜单关联模型
+角色菜单关联领域模型
 """
 
 from django.db import models
-from .role import Role
-from .menu import Menu
 
 
 class RoleMenu(models.Model):
-    role = models.ForeignKey(Role, on_delete=models.CASCADE)
-    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
+    id = models.CharField(max_length=32, primary_key=True)
+    created_time = models.DateTimeField()
+    updated_time = models.DateTimeField()
+    
+    # 外键关系
+    role = models.ForeignKey('Role', on_delete=models.CASCADE, related_name='role_menus')
+    menu = models.ForeignKey('Menu', on_delete=models.CASCADE, related_name='role_menus')
     
     class Meta:
-        db_table = 'system_userrole_menu'
-        unique_together = ('role', 'menu')
+        db_table = 'system_role_menu'
+        app_label = 'domain'
     
     def __str__(self) -> str:
-        return f"{self.role} - {self.menu}"
+        return f"RoleMenu for role {self.role} and menu {self.menu}"

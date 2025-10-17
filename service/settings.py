@@ -159,6 +159,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Custom user model
 AUTH_USER_MODEL = "domain.User"
 
+# Test configuration
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+TEST_DISCOVERY_ROOT = os.path.join(BASE_DIR, 'tests')
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

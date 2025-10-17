@@ -27,6 +27,7 @@ class Role(models.Model):
     
     class Meta:
         db_table = 'system_userrole'
+        app_label = 'domain'
 
     def __str__(self) -> str:
         return str(self.name)

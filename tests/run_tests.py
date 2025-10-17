@@ -10,6 +10,13 @@ import os
 # 添加项目根目录到路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# 设置Django环境变量
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'service.settings')
+
+# 初始化Django
+import django
+django.setup()
+
 
 def run_all_tests():
     """运行所有测试"""

@@ -7,27 +7,32 @@ from .user import User
 
 
 class OperationLog(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    id = models.CharField(max_length=32, primary_key=True)
     created_time = models.DateTimeField()
     updated_time = models.DateTimeField()
-    description = models.CharField(max_length=256, null=True, blank=True)
-    module = models.CharField(max_length=64, null=True, blank=True)
-    path = models.CharField(max_length=400, null=True, blank=True)
-    body = models.TextField(null=True, blank=True)
-    method = models.CharField(max_length=8, null=True, blank=True)
-    ipaddress = models.CharField(max_length=39, null=True, blank=True)
-    browser = models.CharField(max_length=64, null=True, blank=True)
-    system = models.CharField(max_length=64, null=True, blank=True)
-    response_code = models.IntegerField(null=True, blank=True)
-    response_result = models.TextField(null=True, blank=True)
-    status_code = models.IntegerField(null=True, blank=True)
+    module = models.CharField(max_length=128)
+    title = models.CharField(max_length=255)
+    business_type = models.CharField(max_length=128)
+    method = models.CharField(max_length=100)
+    request_method = models.CharField(max_length=10)
+    operator_type = models.CharField(max_length=50)
+    oper_name = models.CharField(max_length=50)
+    dept_name = models.CharField(max_length=50)
+    oper_url = models.CharField(max_length=255)
+    oper_ip = models.CharField(max_length=128)
+    oper_location = models.CharField(max_length=255)
+    oper_param = models.TextField()
+    json_result = models.TextField()
+    status = models.BooleanField(default=True)
+    error_msg = models.TextField(null=True, blank=True)
+    cost_time = models.BigIntegerField()
     
     # 外键关系
-    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_operation_logs')
-    modifier = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='modified_operation_logs')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operation_logs')
     
     class Meta:
-        db_table = 'system_operationlog'
+        db_table = 'system_operation_log'
+        app_label = 'domain'
     
     def __str__(self) -> str:
-        return f"{self.module} - {self.path}"
+        return f"OperationLog {self.title} by {self.oper_name}"

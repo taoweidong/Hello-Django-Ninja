@@ -43,6 +43,7 @@ class User(AbstractUser):
     
     class Meta(AbstractUser.Meta):
         db_table = 'system_userinfo'
+        app_label = 'domain'
 
     @property
     def id(self) -> int:
