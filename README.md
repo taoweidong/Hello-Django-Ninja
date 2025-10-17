@@ -323,7 +323,7 @@ mypy .
 ### 7.2 运行测试
 ```
 # 运行所有测试
-python manage.py test
+python manage.py test tests
 
 # 运行特定测试
 python manage.py test tests.test_user_model
