@@ -81,7 +81,7 @@ class TestOperationLogMiddleware(unittest.TestCase):
         self.assertEqual(self.middleware._get_business_type('DELETE'), '删除')
         self.assertEqual(self.middleware._get_business_type('GET'), '其他')
     
-    @patch('app.common.middlewares.JWTAuth')
+    @patch('app.common.middleware.operation_log_middleware.JWTAuth')
     def test_get_current_user_with_request_user(self, mock_jwt_auth):
         """测试获取当前用户 - 从request.user"""
         # 创建模拟用户
@@ -98,7 +98,7 @@ class TestOperationLogMiddleware(unittest.TestCase):
         self.assertEqual(user, mock_user)
         mock_jwt_auth.assert_not_called()
     
-    @patch('app.common.middlewares.JWTAuth')
+    @patch('app.common.middleware.operation_log_middleware.JWTAuth')
     def test_get_current_user_with_jwt_token(self, mock_jwt_auth):
         """测试获取当前用户 - 从JWT token"""
         # 设置request没有user属性
