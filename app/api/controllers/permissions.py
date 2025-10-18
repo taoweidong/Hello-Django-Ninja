@@ -10,7 +10,8 @@ from app.common.exception.exceptions import BusinessException
 from app.infrastructure.persistence.repos.permission_repo_impl import (
     DjangoORMPermissionRepository,
 )
-from app.api.schemas import PermissionOut, PermissionCreate, PermissionUpdate
+from app.api.schemas import PermissionOut, PermissionCreate, PermissionUpdate, ApiResponse
+from app.common.api_response import success, error
 
 
 @api_controller("/permissions", auth=JWTAuth())
@@ -21,24 +22,24 @@ class PermissionsController:
         # 实例化应用服务
         self.service = PermissionService(permission_repo)
 
-    @http_get("/{permission_id}", response=PermissionOut)
+    @http_get("/{permission_id}", response=ApiResponse[PermissionOut])
     def get_permission(self, permission_id: int):
         try:
             permission_data = self.service.get_permission_by_id(permission_id)
-            return permission_data
+            return success(permission_data, "Permission retrieved successfully")
         except BusinessException as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
 
-    @http_get("/", response=list[PermissionOut])
+    @http_get("/", response=ApiResponse[list[PermissionOut]])
     def list_permissions(self):
         # 通过service层获取所有权限数据
         try:
             permissions_data = self.service.list_permissions()
-            return permissions_data
+            return success(permissions_data, "Permissions retrieved successfully")
         except Exception as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
 
-    @http_post("/", response={201: PermissionOut})
+    @http_post("/", response=ApiResponse[PermissionOut])
     def create_permission(self, payload: PermissionCreate):
         try:
             # 注意：这里需要获取content_type，简化实现中使用默认值
@@ -51,13 +52,13 @@ class PermissionsController:
                 codename=payload.codename,
                 content_type=content_type
             )
-            return 201, permission_data
+            return success(permission_data, "Permission created successfully", 201)
         except BusinessException as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
         except Exception as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
 
-    @http_put("/{permission_id}", response=PermissionOut)
+    @http_put("/{permission_id}", response=ApiResponse[PermissionOut])
     def update_permission(self, permission_id: int, payload: PermissionUpdate):
         try:
             # 注意：这里需要获取content_type，简化实现中使用默认值
@@ -67,24 +68,31 @@ class PermissionsController:
                 from django.contrib.contenttypes.models import ContentType
                 content_type = ContentType.objects.get_for_id(payload.content_type_id)
             
+            # 只传递非空值进行更新
+            update_kwargs = {}
+            if payload.name is not None:
+                update_kwargs['name'] = payload.name
+            if payload.codename is not None:
+                update_kwargs['codename'] = payload.codename
+            if content_type is not None:
+                update_kwargs['content_type'] = content_type
+                
             permission_data = self.service.update_permission(
                 permission_id=permission_id,
-                name=payload.name,
-                codename=payload.codename,
-                content_type=content_type
+                **update_kwargs
             )
-            return permission_data
+            return success(permission_data, "Permission updated successfully")
         except BusinessException as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
         except Exception as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
 
-    @http_delete("/{permission_id}", response={204: None})
+    @http_delete("/{permission_id}", response=ApiResponse[None])
     def delete_permission(self, permission_id: int):
         try:
             self.service.delete_permission(permission_id)
-            return 204, None
+            return success(None, "Permission deleted successfully")
         except BusinessException as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
         except Exception as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)

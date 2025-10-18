@@ -1,9 +1,7 @@
-import unittest
+from django.test import TestCase
 
-class TestHealthController(unittest.TestCase):
+
+class TestHealthController(TestCase):
     def test_health_controller(self):
         """Test health controller functionality"""
         self.assertTrue(True)  # Placeholder for actual tests
-        
-if __name__ == '__main__':
-    unittest.main()

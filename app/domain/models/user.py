@@ -2,14 +2,15 @@
 用户领域模型
 """
 
-from django.db import models
-from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
+from django.db import models
+
+from .base_model import BaseModel, generate_uuid_pk
 from .department import Department
-from .base_model import BaseModel
 
 
 class User(BaseModel, AbstractUser):
+    id = models.CharField(max_length=32, primary_key=True, default=generate_uuid_pk)
     mode_type = models.SmallIntegerField(default=0)  # 添加默认值
     avatar = models.CharField(max_length=100, null=True, blank=True)
     nickname = models.CharField(max_length=150, default="")  # 添加默认值
@@ -40,7 +41,7 @@ class User(BaseModel, AbstractUser):
         return str(self.username)
 
     class Meta(AbstractUser.Meta):
-        db_table = 'system_userinfo'
+        db_table = 'system_user'
         app_label = 'domain'
 
     @property

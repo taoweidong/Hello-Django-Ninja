@@ -9,7 +9,8 @@ from app.application.services.login_log_service import LoginLogService
 from app.common.exception.exceptions import BusinessException
 from app.infrastructure.persistence.repos.login_log_repo_impl import DjangoORMLoginLogRepository
 from app.infrastructure.persistence.repos.user_repo_impl import DjangoORMUserRepository
-from app.api.schemas import LoginLogOut, LoginLogCreate, LoginLogUpdate
+from app.api.schemas import LoginLogOut, LoginLogCreate, LoginLogUpdate, ApiResponse
+from app.common.api_response import success, error
 
 
 @api_controller("/login-logs", auth=JWTAuth())
@@ -21,7 +22,7 @@ class LoginLogsController:
         # 实例化应用服务
         self.service = LoginLogService(login_log_repo, user_repo)
 
-    @http_post("/", response={201: LoginLogOut})
+    @http_post("/", response=ApiResponse[LoginLogOut])
     def create_login_log(self, payload: LoginLogCreate):
         try:
             log_data = self.service.create_login_log(
@@ -33,54 +34,64 @@ class LoginLogsController:
                 agent=payload.agent,
                 creator_id=payload.creator_id
             )
-            return 201, log_data
+            return success(log_data, "Login log created successfully", 201)
         except BusinessException as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
         except Exception as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
 
-    @http_get("/{login_log_id}", response=LoginLogOut)
+    @http_get("/{login_log_id}", response=ApiResponse[LoginLogOut])
     def get_login_log(self, login_log_id: int):
         try:
             log_data = self.service.get_login_log(login_log_id)
-            return log_data
+            return success(log_data, "Login log retrieved successfully")
         except BusinessException as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
         except Exception as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
 
-    @http_get("/", response=list[LoginLogOut])
+    @http_get("/", response=ApiResponse[list[LoginLogOut]])
     def list_login_logs(self):
         try:
             logs_data = self.service.list_login_logs()
-            return logs_data
+            return success(logs_data, "Login logs retrieved successfully")
         except Exception as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
 
-    @http_put("/{login_log_id}", response=LoginLogOut)
+    @http_put("/{login_log_id}", response=ApiResponse[LoginLogOut])
     def update_login_log(self, login_log_id: int, payload: LoginLogUpdate):
         try:
+            # 只传递非空值进行更新
+            update_kwargs = {}
+            if payload.status is not None:
+                update_kwargs['status'] = payload.status
+            if payload.login_type is not None:
+                update_kwargs['login_type'] = payload.login_type
+            if payload.ipaddress is not None:
+                update_kwargs['ipaddress'] = payload.ipaddress
+            if payload.browser is not None:
+                update_kwargs['browser'] = payload.browser
+            if payload.system is not None:
+                update_kwargs['system'] = payload.system
+            if payload.agent is not None:
+                update_kwargs['agent'] = payload.agent
+                
             log_data = self.service.update_login_log(
                 log_id=login_log_id,
-                status=payload.status,
-                login_type=payload.login_type,
-                ipaddress=payload.ipaddress,
-                browser=payload.browser,
-                system=payload.system,
-                agent=payload.agent
+                **update_kwargs
             )
-            return log_data
+            return success(log_data, "Login log updated successfully")
         except BusinessException as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
         except Exception as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
 
-    @http_delete("/{login_log_id}", response={204: None})
+    @http_delete("/{login_log_id}", response=ApiResponse[None])
     def delete_login_log(self, login_log_id: int):
         try:
             self.service.delete_login_log(login_log_id)
-            return 204, None
+            return success(None, "Login log deleted successfully")
         except BusinessException as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)
         except Exception as e:
-            return 400, {"message": str(e)}
+            return error(str(e), 400)

@@ -1,9 +1,15 @@
 """
 抽象基类模型，包含所有模型的公共字段
 """
+import uuid
 
 from django.db import models
 from django.utils import timezone
+
+
+def generate_uuid_pk():
+    """生成UUID主键"""
+    return str(uuid.uuid4()).replace('-', '')
 
 
 class BaseModel(models.Model):

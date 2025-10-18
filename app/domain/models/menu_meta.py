@@ -3,11 +3,12 @@
 """
 
 from django.db import models
-from .base_model import BaseModel
+
+from .base_model import BaseModel, generate_uuid_pk
 
 
 class MenuMeta(BaseModel):
-    id = models.CharField(max_length=32, primary_key=True)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_uuid_pk)
     title = models.CharField(max_length=128)
     icon = models.CharField(max_length=100, null=True, blank=True)
     hidden = models.BooleanField(default=models.NOT_PROVIDED)
