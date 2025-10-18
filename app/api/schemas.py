@@ -336,7 +336,10 @@ class SystemInfoSchema(Schema):
     python_version: str
     platform: str
     hostname: str
-    uptime: Optional[float] = None
+    memory_total_gb: Optional[float] = None
+    memory_available_gb: Optional[float] = None
+    disk_total_gb: Optional[float] = None
+    disk_free_gb: Optional[float] = None
 
 
 class DetailedHealthCheckSchema(Schema):

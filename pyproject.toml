@@ -19,6 +19,7 @@ dependencies = [
     "gunicorn>=20.1.0",
     "mysqlclient>=2.2.7",
     "loguru>=0.7.3",
+    "psutil>=7.1.0",
 ]
 
 [project.optional-dependencies]

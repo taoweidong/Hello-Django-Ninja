@@ -7,6 +7,7 @@ import socket
 import sys
 from datetime import datetime
 
+import psutil
 from django.db import connections
 from django.db.utils import OperationalError
 from django.http import HttpRequest
@@ -69,10 +70,18 @@ class HealthController:
 
     def _get_system_info(self) -> dict:
         """获取系统信息"""
+        # 获取内存信息
+        memory = psutil.virtual_memory()
+        disk = psutil.disk_usage('/')
+
         return {
             "python_version": sys.version,
             "platform": platform.platform(),
             "hostname": socket.gethostname(),
+            "memory_total_gb": round(memory.total / (1024 ** 3), 2),
+            "memory_available_gb": round(memory.available / (1024 ** 3), 2),
+            "disk_total_gb": round(disk.total / (1024 ** 3), 2),
+            "disk_free_gb": round(disk.free / (1024 ** 3), 2),
         }
 
     def _get_dependencies(self) -> dict:
