@@ -3,7 +3,7 @@
 """
 
 from django.test import TestCase
-from app.common.exceptions import (
+from app.common.exception.exceptions import (
     BusinessException,
     NotFoundException,
     ValidationException,

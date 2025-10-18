@@ -3,7 +3,7 @@
 """
 
 from app.domain.models.system_config import SystemConfig
-from app.common.exceptions import BusinessException
+from app.common.exception.exceptions import BusinessException
 from typing import List, Optional
 
 

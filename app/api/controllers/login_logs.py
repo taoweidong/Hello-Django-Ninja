@@ -2,11 +2,11 @@
 用户登录日志管理 API Controller
 """
 
-from ninja_extra import api_controller, http_get, http_post, http_put, http_delete, permissions
+from ninja_extra import api_controller, http_get, http_post, http_put, http_delete
 from ninja_jwt.authentication import JWTAuth
 
 from app.application.services.login_log_service import LoginLogService
-from app.common.exceptions import BusinessException
+from app.common.exception.exceptions import BusinessException
 from app.api.schemas import LoginLogOut, LoginLogCreate, LoginLogUpdate
 
 

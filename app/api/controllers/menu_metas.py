@@ -2,11 +2,11 @@
 菜单元数据管理 API Controller
 """
 
-from ninja_extra import api_controller, http_get, http_post, http_put, http_delete, permissions
+from ninja_extra import api_controller, http_get, http_post, http_put, http_delete
 from ninja_jwt.authentication import JWTAuth
 
 from app.application.services.menu_meta_service import MenuMetaService
-from app.common.exceptions import BusinessException
+from app.common.exception.exceptions import BusinessException
 from app.api.schemas import MenuMetaOut, MenuMetaCreate, MenuMetaUpdate
 
 

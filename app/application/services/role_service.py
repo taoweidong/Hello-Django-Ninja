@@ -4,7 +4,7 @@
 
 from app.domain.repositories.role_repository import RoleRepository
 from app.domain.models.role import Role
-from app.common.exceptions import BusinessException
+from app.common.exception.exceptions import BusinessException
 from typing import List, Union
 
 

@@ -4,7 +4,7 @@
 
 from app.domain.models.operation_log import OperationLog
 from app.domain.models.user import User
-from app.common.exceptions import BusinessException
+from app.common.exception.exceptions import BusinessException
 from typing import List, Optional
 
 

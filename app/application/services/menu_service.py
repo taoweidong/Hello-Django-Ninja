@@ -4,7 +4,7 @@
 
 from app.domain.models.menu import Menu
 from app.domain.models.menu_meta import MenuMeta
-from app.common.exceptions import BusinessException
+from app.common.exception.exceptions import BusinessException
 from typing import List, Optional
 
 

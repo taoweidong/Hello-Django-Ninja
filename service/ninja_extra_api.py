@@ -16,6 +16,7 @@ from app.api.controllers.menu_metas import MenuMetasController
 from app.api.controllers.system_configs import SystemConfigsController
 from app.api.controllers.login_logs import LoginLogsController
 from app.api.controllers.operation_logs import OperationLogsController
+from app.common.exception.exception_handler import global_exception_handler
 from service import settings
 
 # 创建 API 实例，添加更多元数据和配置
@@ -27,6 +28,9 @@ ninja_extra_api = NinjaExtraAPI(
     docs_url="/docs",
     auth=JWTAuth()  # 使用JWT认证
 )
+
+# 注册全局异常处理器
+ninja_extra_api.exception_handler(Exception)(global_exception_handler)
 
 # 注册控制器
 ninja_extra_api.register_controllers(

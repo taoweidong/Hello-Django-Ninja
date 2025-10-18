@@ -4,7 +4,7 @@
 
 from app.domain.repositories.permission_repository import PermissionRepository
 from django.contrib.auth.models import Permission
-from app.common.exceptions import BusinessException
+from app.common.exception.exceptions import BusinessException
 from typing import List
 
 

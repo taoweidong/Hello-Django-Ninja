@@ -3,7 +3,7 @@
 """
 
 from app.domain.models.department import Department
-from app.common.exceptions import BusinessException
+from app.common.exception.exceptions import BusinessException
 from typing import List, Optional
 
 
