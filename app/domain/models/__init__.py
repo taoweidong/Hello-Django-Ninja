@@ -8,3 +8,4 @@ from .role_menu import RoleMenu
 from .system_config import SystemConfig
 from .operation_log import OperationLog
 from .login_log import LoginLog
+from .base_model import BaseModel

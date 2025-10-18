@@ -3,32 +3,29 @@
 """
 
 from django.db import models
+from .base_model import BaseModel
 
 
-class Menu(models.Model):
+class Menu(BaseModel):
     id = models.CharField(max_length=32, primary_key=True)
-    created_time = models.DateTimeField()
-    updated_time = models.DateTimeField()
     name = models.CharField(max_length=128)
     code = models.CharField(max_length=128, unique=True)
     icon = models.CharField(max_length=100, null=True, blank=True)
     path = models.CharField(max_length=255, null=True, blank=True)
     component = models.CharField(max_length=255, null=True, blank=True)
     redirect = models.CharField(max_length=255, null=True, blank=True)
-    hidden = models.BooleanField(default=False)
-    cache = models.BooleanField(default=False)
-    sort = models.IntegerField(default=0)
-    status = models.BooleanField(default=True)
+    hidden = models.BooleanField(default=models.NOT_PROVIDED)
+    cache = models.BooleanField(default=models.NOT_PROVIDED)
+    sort = models.IntegerField(default=models.NOT_PROVIDED)
+    status = models.BooleanField(default=models.NOT_PROVIDED)
     remark = models.TextField(null=True, blank=True)
     
     # 外键关系
-    creator = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='created_menus')
-    modifier = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='modified_menus')
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children')
+    
+    def __str__(self) -> str:
+        return str(self.name)
     
     class Meta:
         db_table = 'system_menu'
         app_label = 'domain'
-    
-    def __str__(self) -> str:
-        return str(self.name)

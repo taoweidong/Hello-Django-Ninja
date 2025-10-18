@@ -79,16 +79,33 @@ def register_exception_handler(cls: Type[Exception]) -> Type[Exception]:
 # ----------------------------
 # 全局异常入口
 # ----------------------------
-def global_exception_handler(controller: ControllerBase, exc: Exception):
+def global_exception_handler(request, exc: Exception):
     logger.exception(f"全局异常处理器捕获到异常: {exc}")
 
+    # 尝试获取注册的异常处理器
     handler = ExceptionHandlerRegistry.get_handler(exc)
     if handler:
-        return handler.handle(controller, exc)
+        # 如果是 Controller 实例，则传递 controller；否则创建兼容的响应
+        if hasattr(request, 'create_response'):
+            return handler.handle(request, exc)
+        else:
+            # 处理没有 controller 的情况 - 直接返回标准错误格式
+            logger.warning(f"业务异常: {exc}")
+            from django.http import JsonResponse
+            if hasattr(exc, 'status_code'):
+                status_code = exc.status_code
+            else:
+                status_code = 500
+
+            return JsonResponse(
+                {"success": False, "message": str(exc)},
+                status=status_code
+            )
 
     # 未注册的异常（如系统异常）
     logger.error("未预期的异常类型，返回 500")
-    return controller.create_response(
-        error("Internal server error", 500),
-        status_code=500
+    from django.http import JsonResponse
+    return JsonResponse(
+        {"success": False, "message": "服务器内部错误，请联系管理员！" + str(exc)},
+        status=500
     )

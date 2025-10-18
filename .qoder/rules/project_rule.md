@@ -21,7 +21,7 @@ project/
 │   ├── common/                    # 通用/共享层 (Cross-cutting Concerns)
 │   │   ├── __init__.py
 │   │   ├── exceptions.py          # 全局自定义异常
-│   │   ├── middlewares.py         # 自定义中间件
+│   │   ├── operation_log_middleware.py         # 自定义中间件
 │   │   └── utils.py               # 通用工具函数
 │   ├── interfaces/                # 接口适配层 (Interface Adapters)
 │   │   ├── __init__.py

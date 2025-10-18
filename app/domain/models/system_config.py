@@ -3,24 +3,18 @@
 """
 
 from django.db import models
+from .base_model import BaseModel
 
 
-class SystemConfig(models.Model):
+class SystemConfig(BaseModel):
     id = models.CharField(max_length=32, primary_key=True)
-    created_time = models.DateTimeField()
-    updated_time = models.DateTimeField()
     key = models.CharField(max_length=128, unique=True)
     value = models.TextField()
-    description = models.CharField(max_length=256, null=True, blank=True)
-    status = models.BooleanField(default=True)
+    status = models.BooleanField(default=models.NOT_PROVIDED)
     
-    # 外键关系
-    creator = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='created_configs')
-    modifier = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='modified_configs')
+    def __str__(self) -> str:
+        return f"SystemConfig {self.key}"
     
     class Meta:
         db_table = 'system_config'
         app_label = 'domain'
-    
-    def __str__(self) -> str:
-        return f"SystemConfig {self.key}"

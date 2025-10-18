@@ -30,7 +30,7 @@ ninja_extra_api = NinjaExtraAPI(
 )
 
 # 注册全局异常处理器
-ninja_extra_api.exception_handler(Exception)(global_exception_handler)
+ninja_extra_api.add_exception_handler(Exception, global_exception_handler)
 
 # 注册控制器
 ninja_extra_api.register_controllers(

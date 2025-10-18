@@ -3,13 +3,11 @@
 """
 
 from django.db import models
+from .base_model import BaseModel
 
 
-class Department(models.Model):
+class Department(BaseModel):
     id = models.CharField(max_length=32, primary_key=True)
-    created_time = models.DateTimeField()
-    updated_time = models.DateTimeField()
-    description = models.CharField(max_length=256, null=True, blank=True)
     name = models.CharField(max_length=128)
     code = models.CharField(max_length=128, unique=True)
     rank = models.IntegerField()
@@ -18,13 +16,11 @@ class Department(models.Model):
     mode_type = models.SmallIntegerField()
     
     # 外键关系
-    creator = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='created_departments')
-    modifier = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='modified_departments')
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children')
+    
+    def __str__(self) -> str:
+        return str(self.name)
     
     class Meta:
         db_table = 'system_deptinfo'
         app_label = 'domain'
-    
-    def __str__(self) -> str:
-        return str(self.name)
