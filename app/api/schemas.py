@@ -36,7 +36,7 @@ class RoleOut(Schema):
 
 
 class PermissionOut(Schema):
-    id: int
+    id: str
     name: str
     codename: str
 
@@ -44,7 +44,7 @@ class PermissionOut(Schema):
 class PermissionCreate(Schema):
     name: str
     codename: str
-    content_type_id: int
+    content_type_id: str
 
 
 class PermissionUpdate(Schema):
@@ -66,7 +66,7 @@ class UserUpdate(Schema):
 
 
 class UserOut(Schema):
-    id: int
+    id: str
     username: str
     email: str
 
@@ -260,7 +260,7 @@ class LoginLogUpdate(Schema):
 
 
 class LoginLogOut(Schema):
-    id: int
+    id: str
     created_time: datetime
     updated_time: datetime
     description: Optional[str] = None
@@ -305,7 +305,7 @@ class OperationLogUpdate(Schema):
 
 
 class OperationLogOut(Schema):
-    id: int
+    id: str
     created_time: datetime
     updated_time: datetime
     description: Optional[str] = None

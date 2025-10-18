@@ -1,6 +1,7 @@
 """
 登录日志相关应用服务
 """
+from django.utils import timezone
 
 from app.domain.models.login_log import LoginLog
 from app.domain.models.user import User
@@ -24,18 +25,11 @@ class LoginLogService:
         system: Optional[str] = None,
         agent: Optional[str] = None,
         description: Optional[str] = None,
-        creator_id: Optional[int] = None
+        creator: Optional[int] = None
     ) -> dict:
         """
         创建登录日志
         """
-        # 检查creator_id是否存在
-        creator = None
-        if creator_id:
-            creator = self.user_repo.find_by_id(creator_id)
-            if not creator:
-                raise BusinessException(f"User with id '{creator_id}' not found.")
-        
         log = LoginLog(
             status=status,
             login_type=login_type,
@@ -43,7 +37,8 @@ class LoginLogService:
             browser=browser,
             system=system,
             agent=agent,
-            creator=creator
+            creator=creator,
+            created_time=timezone.now()
         )
         self.login_log_repo.save(log)
         return self._login_log_to_dict(log)

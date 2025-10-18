@@ -16,7 +16,8 @@ class TestLoginLogsController(TestCase):
         self.user_repo_mock = Mock(spec=UserRepository)
         self.service = LoginLogService(self.login_log_repo_mock, self.user_repo_mock)
     
-    def test_create_login_log_success(self):
+    @patch('app.application.services.login_log_service.LoginLog')
+    def test_create_login_log_success(self, mock_login_log_class):
         # Arrange
         status = True
         login_type = 1
@@ -44,8 +45,11 @@ class TestLoginLogsController(TestCase):
         mock_log.created_time = datetime.now()
         mock_log.updated_time = datetime.now()
         
+        # Mock the LoginLog class to return our mock log when instantiated
+        mock_login_log_class.return_value = mock_log
+        
         # Mock the repository save method
-        self.login_log_repo_mock.save.return_value = None
+        self.login_log_repo_mock.save.return_value = mock_log
         
         # Act
         result = self.service.create_login_log(
@@ -55,14 +59,23 @@ class TestLoginLogsController(TestCase):
             browser=browser,
             system=system,
             agent=agent,
-            creator_id=creator_id
+            creator=creator_id
         )
         
         # Assert
         self.assertEqual(result["status"], status)
         self.assertEqual(result["login_type"], login_type)
         self.user_repo_mock.find_by_id.assert_called_once_with(creator_id)
-        self.login_log_repo_mock.save.assert_called_once()
+        mock_login_log_class.assert_called_once_with(
+            status=status,
+            login_type=login_type,
+            ipaddress=ipaddress,
+            browser=browser,
+            system=system,
+            agent=agent,
+            creator=mock_user
+        )
+        self.login_log_repo_mock.save.assert_called_once_with(mock_log)
     
     def test_get_login_log_success(self):
         # Arrange
@@ -163,7 +176,7 @@ class TestLoginLogsController(TestCase):
         self.login_log_repo_mock.find_by_id.return_value = mock_log
         
         # Mock the repository save method
-        self.login_log_repo_mock.save.return_value = None
+        self.login_log_repo_mock.save.return_value = mock_log
         
         # Act
         result = self.service.update_login_log(
@@ -176,7 +189,7 @@ class TestLoginLogsController(TestCase):
         self.assertEqual(result["status"], status)
         self.assertEqual(result["login_type"], login_type)
         self.login_log_repo_mock.find_by_id.assert_called_once_with(log_id)
-        self.login_log_repo_mock.save.assert_called_once()
+        self.login_log_repo_mock.save.assert_called_once_with(mock_log)
     
     def test_delete_login_log_success(self):
         # Arrange

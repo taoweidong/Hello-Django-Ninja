@@ -106,6 +106,6 @@ def global_exception_handler(request, exc: Exception):
     logger.error("未预期的异常类型，返回 500")
     from django.http import JsonResponse
     return JsonResponse(
-        {"success": False, "message": "服务器内部错误，请联系管理员！" + str(exc)},
+        {"success": False, "message": "服务器内部错误，请联系管理员！\n" + str(exc)},
         status=500
     )

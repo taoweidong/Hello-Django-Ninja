@@ -3,7 +3,7 @@
 """
 
 from unittest.mock import Mock
-from django.test import TestCase
+from django.test import TestCase, SimpleTestCase
 from django.http import JsonResponse
 from ninja_extra import ControllerBase
 from ninja_extra.exceptions import APIException
@@ -18,7 +18,7 @@ from app.common.exception.exceptions import (
 from app.common.api_response import ApiResponse
 
 
-class TestGlobalExceptionHandler(TestCase):
+class TestGlobalExceptionHandler(SimpleTestCase):
     def setUp(self):
         """设置测试环境"""
         self.controller = Mock(spec=ControllerBase)

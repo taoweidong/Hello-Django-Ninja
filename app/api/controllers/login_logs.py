@@ -5,12 +5,12 @@
 from ninja_extra import api_controller, http_get, http_post, http_put, http_delete
 from ninja_jwt.authentication import JWTAuth
 
+from app.api.schemas import LoginLogOut, LoginLogCreate, LoginLogUpdate, ApiResponse
 from app.application.services.login_log_service import LoginLogService
+from app.common.api_response import success, error
 from app.common.exception.exceptions import BusinessException
 from app.infrastructure.persistence.repos.login_log_repo_impl import DjangoORMLoginLogRepository
 from app.infrastructure.persistence.repos.user_repo_impl import DjangoORMUserRepository
-from app.api.schemas import LoginLogOut, LoginLogCreate, LoginLogUpdate, ApiResponse
-from app.common.api_response import success, error
 
 
 @api_controller("/login-logs", auth=JWTAuth())
@@ -23,7 +23,8 @@ class LoginLogsController:
         self.service = LoginLogService(login_log_repo, user_repo)
 
     @http_post("/", response=ApiResponse[LoginLogOut])
-    def create_login_log(self, payload: LoginLogCreate):
+    def create_login_log(self, request, payload: LoginLogCreate):
+        current_user = request.user  # 获取当前登录用户对象
         try:
             log_data = self.service.create_login_log(
                 status=payload.status,
@@ -32,7 +33,7 @@ class LoginLogsController:
                 browser=payload.browser,
                 system=payload.system,
                 agent=payload.agent,
-                creator_id=payload.creator_id
+                creator=current_user.username,  # 使用用户ID而不是用户名
             )
             return success(log_data, "Login log created successfully", 201)
         except BusinessException as e:
@@ -41,7 +42,9 @@ class LoginLogsController:
             return error(str(e), 400)
 
     @http_get("/{login_log_id}", response=ApiResponse[LoginLogOut])
-    def get_login_log(self, login_log_id: int):
+    def get_login_log(self, request, login_log_id: int):
+        # 如果需要基于用户权限控制访问，可以在这里检查
+        current_user = request.user
         try:
             log_data = self.service.get_login_log(login_log_id)
             return success(log_data, "Login log retrieved successfully")
@@ -51,7 +54,9 @@ class LoginLogsController:
             return error(str(e), 400)
 
     @http_get("/", response=ApiResponse[list[LoginLogOut]])
-    def list_login_logs(self):
+    def list_login_logs(self, request):
+        # 如果需要基于用户权限过滤结果，可以在这里处理
+        current_user = request.user
         try:
             logs_data = self.service.list_login_logs()
             return success(logs_data, "Login logs retrieved successfully")
@@ -59,7 +64,8 @@ class LoginLogsController:
             return error(str(e), 400)
 
     @http_put("/{login_log_id}", response=ApiResponse[LoginLogOut])
-    def update_login_log(self, login_log_id: int, payload: LoginLogUpdate):
+    def update_login_log(self, request, login_log_id: int, payload: LoginLogUpdate):
+        current_user = request.user
         try:
             # 只传递非空值进行更新
             update_kwargs = {}
@@ -75,7 +81,7 @@ class LoginLogsController:
                 update_kwargs['system'] = payload.system
             if payload.agent is not None:
                 update_kwargs['agent'] = payload.agent
-                
+
             log_data = self.service.update_login_log(
                 log_id=login_log_id,
                 **update_kwargs
@@ -87,7 +93,8 @@ class LoginLogsController:
             return error(str(e), 400)
 
     @http_delete("/{login_log_id}", response=ApiResponse[None])
-    def delete_login_log(self, login_log_id: int):
+    def delete_login_log(self, request, login_log_id: int):
+        current_user = request.user
         try:
             self.service.delete_login_log(login_log_id)
             return success(None, "Login log deleted successfully")

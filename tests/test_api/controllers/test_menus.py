@@ -12,7 +12,9 @@ class TestMenusController(TestCase):
     def setUp(self):
         self.service = MenuService()
     
-    def test_create_menu_success(self):
+    @patch('app.application.services.menu_service.Menu')
+    @patch('app.application.services.menu_service.MenuMeta')
+    def test_create_menu_success(self, mock_menu_meta_class, mock_menu_class):
         # Arrange
         menu_type = 1
         name = "Dashboard"
@@ -27,61 +29,61 @@ class TestMenusController(TestCase):
         # Mock Menu.objects.filter to return empty queryset (no existing menu with this name)
         mock_queryset = Mock()
         mock_queryset.exists.return_value = False
-        with patch('app.domain.models.menu.Menu.objects.filter', return_value=mock_queryset):
-            # Mock MenuMeta.objects.get to return a mock meta
-            with patch('app.domain.models.menu_meta.MenuMeta.objects.get') as mock_meta_get:
-                mock_meta = Mock(spec=MenuMeta)
-                mock_meta_get.return_value = mock_meta
-                
-                # Mock Menu constructor and save method
-                with patch('app.domain.models.menu.Menu') as MockMenu:
-                    mock_menu_instance = Mock(spec=Menu)
-                    mock_menu_instance.id = "menu123"
-                    mock_menu_instance.menu_type = menu_type
-                    mock_menu_instance.name = name
-                    mock_menu_instance.rank = rank
-                    mock_menu_instance.path = path
-                    mock_menu_instance.component = component
-                    mock_menu_instance.is_active = is_active
-                    mock_menu_instance.method = method
-                    mock_menu_instance.parent_id = parent_id
-                    mock_menu_instance.meta_id = meta_id
-                    mock_menu_instance.created_time = datetime.now()
-                    mock_menu_instance.updated_time = datetime.now()
-                    
-                    MockMenu.return_value = mock_menu_instance
-                    mock_menu_instance.save.return_value = None
-                    
-                    # Act
-                    result = self.service.create_menu(
-                        menu_type=menu_type,
-                        name=name,
-                        rank=rank,
-                        path=path,
-                        component=component,
-                        is_active=is_active,
-                        method=method,
-                        parent_id=parent_id,
-                        meta_id=meta_id
-                    )
-                    
-                    # Assert
-                    self.assertEqual(result["name"], name)
-                    self.assertEqual(result["path"], path)
-                    MockMenu.assert_called_once_with(
-                        menu_type=menu_type,
-                        name=name,
-                        rank=rank,
-                        path=path,
-                        component=component,
-                        is_active=is_active,
-                        method=method,
-                        meta_id=meta_id,
-                        parent_id=parent_id
-                    )
-                    mock_menu_instance.save.assert_called_once()
+        mock_menu_class.objects.filter.return_value = mock_queryset
+        
+        # Mock MenuMeta.objects.get to return a mock meta
+        mock_meta = Mock(spec=MenuMeta)
+        mock_menu_meta_class.objects.get.return_value = mock_meta
+        
+        # Mock Menu constructor and save method
+        mock_menu_instance = Mock(spec=Menu)
+        mock_menu_instance.id = "menu123"
+        mock_menu_instance.menu_type = menu_type
+        mock_menu_instance.name = name
+        mock_menu_instance.rank = rank
+        mock_menu_instance.path = path
+        mock_menu_instance.component = component
+        mock_menu_instance.is_active = is_active
+        mock_menu_instance.method = method
+        mock_menu_instance.parent_id = parent_id
+        mock_menu_instance.meta_id = meta_id
+        mock_menu_instance.created_time = datetime.now()
+        mock_menu_instance.updated_time = datetime.now()
+        
+        # Mock the Menu class to return our mock instance when instantiated
+        mock_menu_class.return_value = mock_menu_instance
+        
+        # Act
+        result = self.service.create_menu(
+            menu_type=menu_type,
+            name=name,
+            rank=rank,
+            path=path,
+            component=component,
+            is_active=is_active,
+            method=method,
+            parent_id=parent_id,
+            meta_id=meta_id
+        )
+        
+        # Assert
+        self.assertEqual(result["name"], name)
+        self.assertEqual(result["path"], path)
+        mock_menu_class.assert_called_once_with(
+            menu_type=menu_type,
+            name=name,
+            rank=rank,
+            path=path,
+            component=component,
+            is_active=is_active,
+            method=method,
+            meta_id=meta_id,
+            parent_id=parent_id
+        )
+        mock_menu_instance.save.assert_called_once()
     
-    def test_get_menu_success(self):
+    @patch('app.application.services.menu_service.Menu')
+    def test_get_menu_success(self, mock_menu_class):
         # Arrange
         menu_id = "menu123"
         menu_type = 1
@@ -95,32 +97,32 @@ class TestMenusController(TestCase):
         meta_id = "meta123"
         
         # Mock Menu.objects.get to return a mock menu
-        with patch('app.domain.models.menu.Menu.objects.get') as mock_menu_get:
-            mock_menu = Mock(spec=Menu)
-            mock_menu.id = menu_id
-            mock_menu.menu_type = menu_type
-            mock_menu.name = name
-            mock_menu.rank = rank
-            mock_menu.path = path
-            mock_menu.component = component
-            mock_menu.is_active = is_active
-            mock_menu.method = method
-            mock_menu.parent_id = parent_id
-            mock_menu.meta_id = meta_id
-            mock_menu.created_time = datetime.now()
-            mock_menu.updated_time = datetime.now()
-            
-            mock_menu_get.return_value = mock_menu
-            
-            # Act
-            result = self.service.get_menu(menu_id)
-            
-            # Assert
-            self.assertEqual(result["name"], name)
-            self.assertEqual(result["path"], path)
-            mock_menu_get.assert_called_once_with(id=menu_id)
+        mock_menu = Mock(spec=Menu)
+        mock_menu.id = menu_id
+        mock_menu.menu_type = menu_type
+        mock_menu.name = name
+        mock_menu.rank = rank
+        mock_menu.path = path
+        mock_menu.component = component
+        mock_menu.is_active = is_active
+        mock_menu.method = method
+        mock_menu.parent_id = parent_id
+        mock_menu.meta_id = meta_id
+        mock_menu.created_time = datetime.now()
+        mock_menu.updated_time = datetime.now()
+        
+        mock_menu_class.objects.get.return_value = mock_menu
+        
+        # Act
+        result = self.service.get_menu(menu_id)
+        
+        # Assert
+        self.assertEqual(result["name"], name)
+        self.assertEqual(result["path"], path)
+        mock_menu_class.objects.get.assert_called_once_with(id=menu_id)
     
-    def test_list_menus_success(self):
+    @patch('app.application.services.menu_service.Menu')
+    def test_list_menus_success(self, mock_menu_class):
         # Arrange
         # Create mock menu objects
         mock_menu1 = Mock(spec=Menu)
@@ -152,16 +154,19 @@ class TestMenusController(TestCase):
         mock_menu2.updated_time = datetime.now()
         
         # Mock Menu.objects.all to return the mock menus
-        with patch('app.domain.models.menu.Menu.objects.all', return_value=[mock_menu1, mock_menu2]):
-            # Act
-            result = self.service.list_menus()
-            
-            # Assert
-            self.assertEqual(len(result), 2)
-            self.assertEqual(result[0]["name"], "Dashboard")
-            self.assertEqual(result[1]["name"], "Users")
+        mock_menu_class.objects.all.return_value = [mock_menu1, mock_menu2]
+        
+        # Act
+        result = self.service.list_menus()
+        
+        # Assert
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["name"], "Dashboard")
+        self.assertEqual(result[1]["name"], "Users")
     
-    def test_update_menu_success(self):
+    @patch('app.application.services.menu_service.Menu')
+    @patch('app.application.services.menu_service.MenuMeta')
+    def test_update_menu_success(self, mock_menu_meta_class, mock_menu_class):
         # Arrange
         menu_id = "menu123"
         menu_type = 1
@@ -169,61 +174,100 @@ class TestMenusController(TestCase):
         rank = 2
         
         # Mock Menu.objects.get to return a mock menu
-        with patch('app.domain.models.menu.Menu.objects.get') as mock_menu_get:
-            mock_menu = Mock(spec=Menu)
-            mock_menu.menu_type = 1
-            mock_menu.name = "Dashboard"
-            mock_menu.rank = 1
-            mock_menu.meta_id = "meta123"
-            
-            mock_menu_get.return_value = mock_menu
-            
-            # Mock Menu.objects.filter to return empty queryset (no existing menu with new name)
-            mock_queryset = Mock()
-            mock_queryset.exists.return_value = False
-            mock_queryset.exclude.return_value = mock_queryset
-            with patch('app.domain.models.menu.Menu.objects.filter', return_value=mock_queryset):
-                # Mock MenuMeta.objects.get to return a mock meta
-                with patch('app.domain.models.menu_meta.MenuMeta.objects.get') as mock_meta_get:
-                    mock_meta = Mock(spec=MenuMeta)
-                    mock_meta_get.return_value = mock_meta
-                    
-                    mock_menu.save.return_value = None
-                    
-                    # Act
-                    result = self.service.update_menu(
-                        menu_id=menu_id,
-                        menu_type=menu_type,
-                        name=name,
-                        rank=rank
-                    )
-                    
-                    # Assert
-                    self.assertEqual(result["name"], name)
-                    self.assertEqual(result["rank"], rank)
-                    mock_menu_get.assert_called_once_with(id=menu_id)
-                    mock_menu.save.assert_called_once()
+        mock_menu = Mock(spec=Menu)
+        mock_menu.menu_type = 1
+        mock_menu.name = "Dashboard"
+        mock_menu.rank = 1
+        mock_menu.meta_id = "meta123"
+        mock_menu.save.return_value = None
+        
+        mock_menu_class.objects.get.return_value = mock_menu
+        
+        # Mock Menu.objects.filter to return empty queryset (no existing menu with new name)
+        mock_queryset = Mock()
+        mock_queryset.exists.return_value = False
+        mock_queryset.exclude.return_value = mock_queryset
+        mock_menu_class.objects.filter.return_value = mock_queryset
+        
+        # Mock MenuMeta.objects.get to return a mock meta
+        mock_meta = Mock(spec=MenuMeta)
+        mock_menu_meta_class.objects.get.return_value = mock_meta
+        
+        # Act
+        result = self.service.update_menu(
+            menu_id=menu_id,
+            menu_type=menu_type,
+            name=name,
+            rank=rank
+        )
+        
+        # Assert
+        self.assertEqual(result["name"], name)
+        self.assertEqual(result["rank"], rank)
+        mock_menu_class.objects.get.assert_called_once_with(id=menu_id)
+        mock_menu.save.assert_called_once()
     
-    def test_delete_menu_success(self):
+    @patch('app.application.services.menu_service.Menu')
+    def test_delete_menu_success(self, mock_menu_class):
         # Arrange
         menu_id = "menu123"
         
         # Mock Menu.objects.get to return a mock menu
-        with patch('app.domain.models.menu.Menu.objects.get') as mock_menu_get:
-            mock_menu = Mock(spec=Menu)
-            mock_menu.delete.return_value = None
-            
-            mock_menu_get.return_value = mock_menu
-            
-            # Act
-            result = self.service.delete_menu(menu_id)
-            
-            # Assert
-            self.assertTrue(result)
-            mock_menu_get.assert_called_once_with(id=menu_id)
-            mock_menu.delete.assert_called_once()
+        mock_menu = Mock(spec=Menu)
+        mock_menu.delete.return_value = None
+        
+        mock_menu_class.objects.get.return_value = mock_menu
+        
+        # Act
+        result = self.service.delete_menu(menu_id)
+        
+        # Assert
+        self.assertTrue(result)
+        mock_menu_class.objects.get.assert_called_once_with(id=menu_id)
+        mock_menu.delete.assert_called_once()
     
-    def test_create_menu_name_exists(self):
+    @patch('app.application.services.menu_service.Menu')
+    def test_get_menu_not_found(self, mock_menu_class):
+        # Arrange
+        menu_id = "menu123"
+        
+        # Mock Menu.objects.get to raise DoesNotExist
+        mock_menu_class.DoesNotExist = Exception
+        mock_menu_class.objects.get.side_effect = mock_menu_class.DoesNotExist("Menu does not exist")
+        
+        # Act & Assert
+        with self.assertRaises(BusinessException):
+            self.service.get_menu(menu_id)
+    
+    @patch('app.application.services.menu_service.Menu')
+    def test_update_menu_not_found(self, mock_menu_class):
+        # Arrange
+        menu_id = "menu123"
+        name = "Updated Dashboard"
+        
+        # Mock Menu.objects.get to raise DoesNotExist
+        mock_menu_class.DoesNotExist = Exception
+        mock_menu_class.objects.get.side_effect = mock_menu_class.DoesNotExist("Menu does not exist")
+        
+        # Act & Assert
+        with self.assertRaises(BusinessException):
+            self.service.update_menu(menu_id=menu_id, name=name)
+    
+    @patch('app.application.services.menu_service.Menu')
+    def test_delete_menu_not_found(self, mock_menu_class):
+        # Arrange
+        menu_id = "menu123"
+        
+        # Mock Menu.objects.get to raise DoesNotExist
+        mock_menu_class.DoesNotExist = Exception
+        mock_menu_class.objects.get.side_effect = mock_menu_class.DoesNotExist("Menu does not exist")
+        
+        # Act & Assert
+        with self.assertRaises(BusinessException):
+            self.service.delete_menu(menu_id)
+    
+    @patch('app.application.services.menu_service.Menu')
+    def test_create_menu_name_exists(self, mock_menu_class):
         # Arrange
         menu_type = 1
         name = "Dashboard"
@@ -232,50 +276,12 @@ class TestMenusController(TestCase):
         # Mock Menu.objects.filter to return queryset that exists (menu with this name already exists)
         mock_queryset = Mock()
         mock_queryset.exists.return_value = True
-        with patch('app.domain.models.menu.Menu.objects.filter', return_value=mock_queryset):
-            # Act & Assert
-            with self.assertRaises(BusinessException):
-                self.service.create_menu(menu_type=menu_type, name=name, rank=rank)
-    
-    def test_get_menu_not_found(self):
-        # Arrange
-        menu_id = "menu123"
+        mock_menu_class.objects.filter.return_value = mock_queryset
         
-        # Mock Menu.objects.get to raise DoesNotExist
-        with patch('app.domain.models.menu.Menu.objects.get') as mock_menu_get:
-            # 创建一个DoesNotExist异常实例
-            does_not_exist_exception = type('DoesNotExist', (Exception,), {})()
-            mock_menu_get.side_effect = does_not_exist_exception
-            
-            # Act & Assert
-            with self.assertRaises(BusinessException):
-                self.service.get_menu(menu_id)
-    
-    def test_update_menu_not_found(self):
-        # Arrange
-        menu_id = "menu123"
-        name = "Updated Dashboard"
-        
-        # Mock Menu.objects.get to raise DoesNotExist
-        with patch('app.domain.models.menu.Menu.objects.get') as mock_menu_get:
-            # 创建一个DoesNotExist异常实例
-            does_not_exist_exception = type('DoesNotExist', (Exception,), {})()
-            mock_menu_get.side_effect = does_not_exist_exception
-            
-            # Act & Assert
-            with self.assertRaises(BusinessException):
-                self.service.update_menu(menu_id=menu_id, name=name)
-    
-    def test_delete_menu_not_found(self):
-        # Arrange
-        menu_id = "menu123"
-        
-        # Mock Menu.objects.get to raise DoesNotExist
-        with patch('app.domain.models.menu.Menu.objects.get') as mock_menu_get:
-            # 创建一个DoesNotExist异常实例
-            does_not_exist_exception = type('DoesNotExist', (Exception,), {})()
-            mock_menu_get.side_effect = does_not_exist_exception
-            
-            # Act & Assert
-            with self.assertRaises(BusinessException):
-                self.service.delete_menu(menu_id)
+        # Act & Assert
+        with self.assertRaises(BusinessException):
+            self.service.create_menu(
+                menu_type=menu_type,
+                name=name,
+                rank=rank
+            )

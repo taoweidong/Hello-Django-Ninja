@@ -5,10 +5,10 @@
 from ninja_extra import api_controller, http_get, http_post, http_put, http_delete
 from ninja_jwt.authentication import JWTAuth
 
-from app.application.services.system_config_service import SystemConfigService
-from app.common.exception.exceptions import BusinessException
 from app.api.schemas import SystemConfigOut, SystemConfigCreate, SystemConfigUpdate, ApiResponse
+from app.application.services.system_config_service import SystemConfigService
 from app.common.api_response import success, error
+from app.common.exception.exceptions import BusinessException
 
 
 @api_controller("/system-configs", auth=JWTAuth())
@@ -69,7 +69,7 @@ class SystemConfigsController:
                 update_kwargs['access'] = payload.access
             if payload.inherit is not None:
                 update_kwargs['inherit'] = payload.inherit
-                
+
             config_data = self.service.update_system_config(
                 config_id=config_id,
                 **update_kwargs

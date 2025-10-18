@@ -2,7 +2,8 @@
 测试通用异常处理
 """
 
-from django.test import TestCase
+from django.test import SimpleTestCase
+
 from app.common.exception.exceptions import (
     BusinessException,
     NotFoundException,
@@ -12,7 +13,7 @@ from app.common.exception.exceptions import (
 )
 
 
-class TestExceptions(TestCase):
+class TestExceptions(SimpleTestCase):
     def test_business_exception(self):
         """测试业务异常"""
         exception = BusinessException("Test business exception")
