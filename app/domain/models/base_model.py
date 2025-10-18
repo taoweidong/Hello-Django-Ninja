@@ -16,6 +16,7 @@ class BaseModel(models.Model):
     """
     抽象基类模型，包含所有模型的公共字段
     """
+    id = models.CharField(max_length=32, primary_key=True, default=generate_uuid_pk)
     # 注意：不定义id字段，让子类模型自行定义主键字段
     created_time = models.DateTimeField(default=timezone.now)
     updated_time = models.DateTimeField(default=timezone.now)

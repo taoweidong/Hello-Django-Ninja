@@ -4,11 +4,10 @@
 
 from django.db import models
 
-from .base_model import BaseModel, generate_uuid_pk
+from .base_model import BaseModel
 
 
 class Menu(BaseModel):
-    id = models.CharField(max_length=32, primary_key=True, default=generate_uuid_pk)
     name = models.CharField(max_length=128)
     code = models.CharField(max_length=128, unique=True)
     menu_type = models.SmallIntegerField()

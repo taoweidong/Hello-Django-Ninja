@@ -4,12 +4,10 @@
 
 from django.db import models
 
-from .base_model import BaseModel, generate_uuid_pk
+from .base_model import BaseModel
 
 
 class RoleMenu(BaseModel):
-    id = models.CharField(max_length=32, primary_key=True, default=generate_uuid_pk)
-    
     # 外键关系
     role = models.ForeignKey('Role', on_delete=models.CASCADE, related_name='role_menus')
     menu = models.ForeignKey('Menu', on_delete=models.CASCADE, related_name='role_menus')

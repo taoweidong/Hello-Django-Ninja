@@ -3,19 +3,18 @@
 """
 
 from django.db import models
+
 from .base_model import BaseModel
 
 
 class UserRole(BaseModel):
-    id = models.CharField(max_length=32, primary_key=True)
-    
     # 外键关系
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='user_roles')
     role = models.ForeignKey('Role', on_delete=models.CASCADE, related_name='user_roles')
-    
+
     def __str__(self) -> str:
         return f"UserRole {self.user} - {self.role}"
-    
+
     class Meta:
         db_table = 'system_user_role'
         app_label = 'domain'

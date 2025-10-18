@@ -9,7 +9,6 @@ from .user import User
 
 
 class LoginLog(BaseModel):
-    id = models.CharField(max_length=32, primary_key=True, default=generate_uuid_pk)
     status = models.BooleanField()
     login_type = models.IntegerField()
     ipaddress = models.CharField(max_length=45, null=True, blank=True)

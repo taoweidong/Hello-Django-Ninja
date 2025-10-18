@@ -4,12 +4,11 @@
 
 from django.db import models
 
-from .base_model import BaseModel, generate_uuid_pk
+from .base_model import BaseModel
 from .user import User
 
 
 class OperationLog(BaseModel):
-    id = models.CharField(max_length=32, primary_key=True, default=generate_uuid_pk)
     module = models.CharField(max_length=128)
     title = models.CharField(max_length=255)
     business_type = models.CharField(max_length=128)
