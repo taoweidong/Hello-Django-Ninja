@@ -27,7 +27,10 @@ class TestMenuModel(TestCase):
                 cache=True,
                 sort=1,
                 status=True,
-                remark="Test menu remark"
+                remark="Test menu remark",
+                menu_type=1,
+                rank=0,
+                meta_id="meta123"
             )
             menu.save()
             
@@ -53,7 +56,10 @@ class TestMenuModel(TestCase):
             menu = Menu(
                 id=uuid.uuid4().hex[:32],
                 name="test_menu",
-                code="TEST_MENU"
+                code="TEST_MENU",
+                menu_type=1,
+                rank=0,
+                meta_id="meta123"
             )
             menu.save()
             
@@ -68,21 +74,27 @@ class TestMenuModel(TestCase):
             parent_menu = Menu(
                 id=uuid.uuid4().hex[:32],
                 name="parent_menu",
-                code="PARENT_MENU"
+                code="PARENT_MENU",
+                menu_type=1,
+                rank=0,
+                meta_id="meta123"
             )
             parent_menu.save()
             
-            # 创建子菜单
+            # 创建子菜单，使用parent_id而不是parent字段
             child_menu = Menu(
                 id=uuid.uuid4().hex[:32],
                 name="child_menu",
                 code="CHILD_MENU",
-                parent=parent_menu
+                menu_type=1,
+                rank=0,
+                meta_id="meta123",
+                parent_id=parent_menu.id
             )
             child_menu.save()
             
-            # 验证父子关系
-            self.assertEqual(child_menu.parent, parent_menu)
+            # 验证父子关系通过parent_id
+            self.assertEqual(child_menu.parent_id, parent_menu.id)
         
     def test_menu_optional_fields(self):
         """测试菜单可选字段"""
@@ -91,7 +103,10 @@ class TestMenuModel(TestCase):
             menu = Menu(
                 id=uuid.uuid4().hex[:32],
                 name="test_menu",
-                code="TEST_MENU"
+                code="TEST_MENU",
+                menu_type=1,
+                rank=0,
+                meta_id="meta123"
                 # 不设置可选字段
             )
             menu.save()

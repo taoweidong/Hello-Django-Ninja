@@ -5,16 +5,18 @@
 from django.test import TestCase
 from app.application.services.department_service import DepartmentService
 from app.domain.models.department import Department
+from app.domain.repositories.department_repository import DepartmentRepository
 from app.common.exception.exceptions import BusinessException
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, Mock
 import uuid
-from django.core.exceptions import ObjectDoesNotExist
 
 
 class TestDepartmentService(TestCase):
     def setUp(self):
         """测试初始化"""
-        self.department_service = DepartmentService()
+        # 创建mock的repository
+        self.mock_repo = Mock(spec=DepartmentRepository)
+        self.department_service = DepartmentService(self.mock_repo)
 
     def test_create_department_success(self):
         """测试成功创建部门"""
@@ -30,30 +32,31 @@ class TestDepartmentService(TestCase):
             "parent_id": None
         }
         
-        # 使用mock避免实际数据库操作
-        with patch('app.domain.models.department.Department.save') as mock_save:
-            with patch('app.domain.models.department.Department.objects.filter') as mock_filter:
-                mock_filter.return_value.exists.return_value = False
-                mock_department = MagicMock()
-                mock_department.id = str(uuid.uuid4())
-                mock_department.name = department_data["name"]
-                mock_department.code = department_data["code"]
-                mock_department.description = department_data["description"]
-                mock_department.rank = department_data["rank"]
-                mock_department.auto_bind = department_data["auto_bind"]
-                mock_department.is_active = department_data["is_active"]
-                mock_department.mode_type = department_data["mode_type"]
-                mock_department.parent_id = department_data["parent_id"]
-                mock_department.created_time = "2023-01-01T00:00:00Z"
-                mock_department.updated_time = "2023-01-01T00:00:00Z"
-                
-                with patch('app.domain.models.department.Department', return_value=mock_department):
-                    result = self.department_service.create_department(**department_data)
-                    
-                    # 验证结果
-                    self.assertEqual(result["name"], department_data["name"])
-                    self.assertEqual(result["code"], department_data["code"])
-                    mock_save.assert_called_once()
+        # 创建mock的department对象
+        mock_department = Mock(spec=Department)
+        mock_department.id = str(uuid.uuid4())
+        mock_department.name = department_data["name"]
+        mock_department.code = department_data["code"]
+        mock_department.description = department_data["description"]
+        mock_department.rank = department_data["rank"]
+        mock_department.auto_bind = department_data["auto_bind"]
+        mock_department.is_active = department_data["is_active"]
+        mock_department.mode_type = department_data["mode_type"]
+        mock_department.parent_id = department_data["parent_id"]
+        mock_department.created_time = "2023-01-01T00:00:00Z"
+        mock_department.updated_time = "2023-01-01T00:00:00Z"
+        
+        # 设置mock行为
+        self.mock_repo.find_by_code.return_value = None
+        self.mock_repo.save.return_value = None
+        
+        with patch('app.domain.models.department.Department', return_value=mock_department):
+            result = self.department_service.create_department(**department_data)
+            
+            # 验证结果
+            self.assertEqual(result["name"], department_data["name"])
+            self.assertEqual(result["code"], department_data["code"])
+            self.mock_repo.save.assert_called_once()
 
     def test_create_department_duplicate_code(self):
         """测试创建部门时code重复"""
@@ -67,18 +70,19 @@ class TestDepartmentService(TestCase):
             "mode_type": 0
         }
         
-        with patch('app.domain.models.department.Department.objects.filter') as mock_filter:
-            mock_filter.return_value.exists.return_value = True
-            
-            with self.assertRaises(BusinessException) as context:
-                self.department_service.create_department(**department_data)
-            
-            self.assertIn("already exists", str(context.exception))
+        # 设置mock行为，模拟code已存在
+        self.mock_repo.find_by_code.return_value = Mock()
+        
+        with self.assertRaises(BusinessException) as context:
+            self.department_service.create_department(**department_data)
+        
+        self.assertIn("already exists", str(context.exception))
+        self.mock_repo.save.assert_not_called()
 
     def test_get_department_success(self):
         """测试成功获取部门"""
         department_id = str(uuid.uuid4())
-        mock_department = MagicMock()
+        mock_department = Mock(spec=Department)
         mock_department.id = department_id
         mock_department.name = "测试部门"
         mock_department.code = "TEST_DEPT"
@@ -91,32 +95,32 @@ class TestDepartmentService(TestCase):
         mock_department.created_time = "2023-01-01T00:00:00Z"
         mock_department.updated_time = "2023-01-01T00:00:00Z"
         
-        with patch('app.domain.models.department.Department.objects.get', return_value=mock_department):
-            result = self.department_service.get_department(department_id)
-            
-            self.assertEqual(result["id"], department_id)
-            self.assertEqual(result["name"], "测试部门")
+        # 设置mock行为
+        self.mock_repo.find_by_id.return_value = mock_department
+        
+        result = self.department_service.get_department(department_id)
+        
+        self.assertEqual(result["id"], department_id)
+        self.assertEqual(result["name"], "测试部门")
+        self.mock_repo.find_by_id.assert_called_once_with(department_id)
 
     def test_get_department_not_found(self):
         """测试获取不存在的部门"""
         department_id = str(uuid.uuid4())
         
-        with patch('app.domain.models.department.Department.objects.get') as mock_get:
-            # 创建一个模拟的Department.DoesNotExist异常
-            class MockDoesNotExist(Exception):
-                pass
-            mock_get.side_effect = MockDoesNotExist()
-            # 通过patch使Department.DoesNotExist指向我们的模拟异常
-            with patch.object(Department, 'DoesNotExist', MockDoesNotExist):
-                with self.assertRaises(BusinessException) as context:
-                    self.department_service.get_department(department_id)
-                
-                self.assertIn("not found", str(context.exception))
+        # 设置mock行为，模拟部门不存在
+        self.mock_repo.find_by_id.return_value = None
+        
+        with self.assertRaises(BusinessException) as context:
+            self.department_service.get_department(department_id)
+        
+        self.assertIn("not found", str(context.exception))
+        self.mock_repo.find_by_id.assert_called_once_with(department_id)
 
     def test_update_department_success(self):
         """测试成功更新部门"""
         department_id = str(uuid.uuid4())
-        mock_department = MagicMock()
+        mock_department = Mock(spec=Department)
         mock_department.id = department_id
         mock_department.name = "原始名称"
         mock_department.code = "ORIGINAL_CODE"
@@ -138,63 +142,61 @@ class TestDepartmentService(TestCase):
             "mode_type": 1
         }
         
-        with patch('app.domain.models.department.Department.objects.get', return_value=mock_department):
-            with patch('app.domain.models.department.Department.objects.filter') as mock_filter:
-                mock_filter.return_value.exclude.return_value.exists.return_value = False
-                result = self.department_service.update_department(department_id, **update_data)
-                
-                self.assertEqual(result["name"], update_data["name"])
-                self.assertEqual(result["code"], update_data["code"])
-                mock_department.save.assert_called_once()
+        # 设置mock行为
+        self.mock_repo.find_by_id.return_value = mock_department
+        self.mock_repo.find_by_code.return_value = None  # 模拟新code不存在
+        self.mock_repo.save.return_value = None
+        
+        result = self.department_service.update_department(department_id, **update_data)
+        
+        self.assertEqual(result["name"], update_data["name"])
+        self.assertEqual(result["code"], update_data["code"])
+        self.mock_repo.save.assert_called_once()
 
     def test_update_department_not_found(self):
         """测试更新不存在的部门"""
         department_id = str(uuid.uuid4())
         
-        with patch('app.domain.models.department.Department.objects.get') as mock_get:
-            # 创建一个模拟的Department.DoesNotExist异常
-            class MockDoesNotExist(Exception):
-                pass
-            mock_get.side_effect = MockDoesNotExist()
-            # 通过patch使Department.DoesNotExist指向我们的模拟异常
-            with patch.object(Department, 'DoesNotExist', MockDoesNotExist):
-                with self.assertRaises(BusinessException) as context:
-                    self.department_service.update_department(department_id, name="新名称")
-                
-                self.assertIn("not found", str(context.exception))
+        # 设置mock行为，模拟部门不存在
+        self.mock_repo.find_by_id.return_value = None
+        
+        with self.assertRaises(BusinessException) as context:
+            self.department_service.update_department(department_id, name="新名称")
+        
+        self.assertIn("not found", str(context.exception))
+        self.mock_repo.find_by_id.assert_called_once_with(department_id)
+        self.mock_repo.save.assert_not_called()
 
     def test_delete_department_success(self):
         """测试成功删除部门"""
         department_id = str(uuid.uuid4())
-        mock_department = MagicMock()
         
-        with patch('app.domain.models.department.Department.objects.get', return_value=mock_department):
-            result = self.department_service.delete_department(department_id)
-            
-            self.assertTrue(result)
-            mock_department.delete.assert_called_once()
+        # 设置mock行为
+        self.mock_repo.delete.return_value = True
+        
+        result = self.department_service.delete_department(department_id)
+        
+        self.assertTrue(result)
+        self.mock_repo.delete.assert_called_once_with(department_id)
 
     def test_delete_department_not_found(self):
         """测试删除不存在的部门"""
         department_id = str(uuid.uuid4())
         
-        with patch('app.domain.models.department.Department.objects.get') as mock_get:
-            # 创建一个模拟的Department.DoesNotExist异常
-            class MockDoesNotExist(Exception):
-                pass
-            mock_get.side_effect = MockDoesNotExist()
-            # 通过patch使Department.DoesNotExist指向我们的模拟异常
-            with patch.object(Department, 'DoesNotExist', MockDoesNotExist):
-                with self.assertRaises(BusinessException) as context:
-                    self.department_service.delete_department(department_id)
-                
-                self.assertIn("not found", str(context.exception))
+        # 设置mock行为，模拟删除失败（部门不存在）
+        self.mock_repo.delete.return_value = False
+        
+        with self.assertRaises(BusinessException) as context:
+            self.department_service.delete_department(department_id)
+        
+        self.assertIn("not found", str(context.exception))
+        self.mock_repo.delete.assert_called_once_with(department_id)
 
     def test_list_departments(self):
         """测试获取部门列表"""
         mock_departments = []
         for i in range(3):
-            mock_dept = MagicMock()
+            mock_dept = Mock(spec=Department)
             mock_dept.id = str(uuid.uuid4())
             mock_dept.name = f"部门{i}"
             mock_dept.code = f"DEPT_{i}"
@@ -208,8 +210,11 @@ class TestDepartmentService(TestCase):
             mock_dept.updated_time = "2023-01-01T00:00:00Z"
             mock_departments.append(mock_dept)
         
-        with patch('app.domain.models.department.Department.objects.all', return_value=mock_departments):
-            result = self.department_service.list_departments()
-            
-            self.assertEqual(len(result), 3)
-            self.assertEqual(result[0]["name"], "部门0")
+        # 设置mock行为
+        self.mock_repo.list_all.return_value = mock_departments
+        
+        result = self.department_service.list_departments()
+        
+        self.assertEqual(len(result), 3)
+        self.assertEqual(result[0]["name"], "部门0")
+        self.mock_repo.list_all.assert_called_once()
