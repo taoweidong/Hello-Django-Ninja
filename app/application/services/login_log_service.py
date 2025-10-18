@@ -4,13 +4,16 @@
 
 from app.domain.models.login_log import LoginLog
 from app.domain.models.user import User
+from app.domain.repositories.login_log_repository import LoginLogRepository
+from app.domain.repositories.user_repository import UserRepository
 from app.common.exception.exceptions import BusinessException
 from typing import List, Optional
 
 
 class LoginLogService:
-    def __init__(self):
-        pass
+    def __init__(self, login_log_repo: LoginLogRepository, user_repo: UserRepository):
+        self.login_log_repo = login_log_repo
+        self.user_repo = user_repo
 
     def create_login_log(
         self,
@@ -29,9 +32,8 @@ class LoginLogService:
         # 检查creator_id是否存在
         creator = None
         if creator_id:
-            try:
-                creator = User.objects.get(id=creator_id)
-            except User.DoesNotExist:
+            creator = self.user_repo.find_by_id(creator_id)
+            if not creator:
                 raise BusinessException(f"User with id '{creator_id}' not found.")
         
         log = LoginLog(
@@ -41,21 +43,19 @@ class LoginLogService:
             browser=browser,
             system=system,
             agent=agent,
-            description=description,
             creator=creator
         )
-        log.save()
+        self.login_log_repo.save(log)
         return self._login_log_to_dict(log)
 
     def get_login_log(self, log_id: int) -> dict:
         """
         根据ID获取登录日志
         """
-        try:
-            log = LoginLog.objects.get(id=log_id)
-            return self._login_log_to_dict(log)
-        except LoginLog.DoesNotExist:
+        log = self.login_log_repo.find_by_id(log_id)
+        if not log:
             raise BusinessException(f"LoginLog with id '{log_id}' not found.")
+        return self._login_log_to_dict(log)
 
     def update_login_log(
         self,
@@ -71,45 +71,41 @@ class LoginLogService:
         """
         更新登录日志信息
         """
-        try:
-            log = LoginLog.objects.get(id=log_id)
-            
-            if status is not None:
-                log.status = status
-            if login_type is not None:
-                log.login_type = login_type
-            if ipaddress is not None:
-                log.ipaddress = ipaddress
-            if browser is not None:
-                log.browser = browser
-            if system is not None:
-                log.system = system
-            if agent is not None:
-                log.agent = agent
-            if description is not None:
-                log.description = description
-            
-            log.save()
-            return self._login_log_to_dict(log)
-        except LoginLog.DoesNotExist:
+        log = self.login_log_repo.find_by_id(log_id)
+        if not log:
             raise BusinessException(f"LoginLog with id '{log_id}' not found.")
+        
+        if status is not None:
+            log.status = status
+        if login_type is not None:
+            log.login_type = login_type
+        if ipaddress is not None:
+            log.ipaddress = ipaddress
+        if browser is not None:
+            log.browser = browser
+        if system is not None:
+            log.system = system
+        if agent is not None:
+            log.agent = agent
+        # description字段不存在于模型中
+        
+        self.login_log_repo.save(log)
+        return self._login_log_to_dict(log)
 
     def delete_login_log(self, log_id: int) -> bool:
         """
         删除登录日志
         """
-        try:
-            log = LoginLog.objects.get(id=log_id)
-            log.delete()
-            return True
-        except LoginLog.DoesNotExist:
+        result = self.login_log_repo.delete(log_id)
+        if not result:
             raise BusinessException(f"LoginLog with id '{log_id}' not found.")
+        return result
 
     def list_login_logs(self) -> List[dict]:
         """
         获取所有登录日志列表
         """
-        logs = LoginLog.objects.all()
+        logs = self.login_log_repo.list_all()
         return [self._login_log_to_dict(log) for log in logs]
 
     def _login_log_to_dict(self, log: LoginLog) -> dict:
@@ -124,7 +120,7 @@ class LoginLogService:
             "browser": log.browser,
             "system": log.system,
             "agent": log.agent,
-            "description": log.description,
+            # description字段不存在于模型中,
             "creator_id": log.creator.id if log.creator else None,
             "created_time": log.created_time,
             "updated_time": log.updated_time

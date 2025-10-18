@@ -7,14 +7,17 @@ from ninja_jwt.authentication import JWTAuth
 
 from app.application.services.department_service import DepartmentService
 from app.common.exception.exceptions import BusinessException
+from app.infrastructure.persistence.repos.department_repo_impl import DjangoORMDepartmentRepository
 from app.api.schemas import DepartmentOut, DepartmentCreate, DepartmentUpdate
 
 
 @api_controller("/departments", auth=JWTAuth())
 class DepartmentsController:
     def __init__(self):
+        # 实例化仓储实现
+        department_repo = DjangoORMDepartmentRepository()
         # 实例化应用服务
-        self.service = DepartmentService()
+        self.service = DepartmentService(department_repo)
 
     @http_post("/", response={201: DepartmentOut})
     def create_department(self, payload: DepartmentCreate):

@@ -7,14 +7,19 @@ from ninja_jwt.authentication import JWTAuth
 
 from app.application.services.login_log_service import LoginLogService
 from app.common.exception.exceptions import BusinessException
+from app.infrastructure.persistence.repos.login_log_repo_impl import DjangoORMLoginLogRepository
+from app.infrastructure.persistence.repos.user_repo_impl import DjangoORMUserRepository
 from app.api.schemas import LoginLogOut, LoginLogCreate, LoginLogUpdate
 
 
 @api_controller("/login-logs", auth=JWTAuth())
 class LoginLogsController:
     def __init__(self):
+        # 实例化仓储实现
+        login_log_repo = DjangoORMLoginLogRepository()
+        user_repo = DjangoORMUserRepository()
         # 实例化应用服务
-        self.service = LoginLogService()
+        self.service = LoginLogService(login_log_repo, user_repo)
 
     @http_post("/", response={201: LoginLogOut})
     def create_login_log(self, payload: LoginLogCreate):
@@ -26,7 +31,6 @@ class LoginLogsController:
                 browser=payload.browser,
                 system=payload.system,
                 agent=payload.agent,
-                description=payload.description,
                 creator_id=payload.creator_id
             )
             return 201, log_data
@@ -63,8 +67,7 @@ class LoginLogsController:
                 ipaddress=payload.ipaddress,
                 browser=payload.browser,
                 system=payload.system,
-                agent=payload.agent,
-                description=payload.description
+                agent=payload.agent
             )
             return log_data
         except BusinessException as e:
