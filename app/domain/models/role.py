@@ -22,5 +22,5 @@ class Role(BaseModel):
         return str(self.name)
     
     class Meta:
-        db_table = 'system_userrole'
+        db_table = 'system_role'
         app_label = 'domain'
