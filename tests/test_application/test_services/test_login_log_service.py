@@ -49,7 +49,12 @@ class TestLoginLogService(TestCase):
         mock_log.created_time = "2023-01-01T00:00:00Z"
         mock_log.updated_time = "2023-01-01T00:00:00Z"
         
+        # 创建mock的user对象
+        mock_user = Mock(spec=User)
+        mock_user.id = log_data["creator"]
+        
         # 设置mock行为
+        self.mock_user_repo.find_by_id.return_value = mock_user
         self.mock_login_log_repo.save.return_value = None
         
         # 执行测试

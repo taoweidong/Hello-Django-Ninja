@@ -30,6 +30,11 @@ class LoginLogService:
         """
         创建登录日志
         """
+        # 如果提供了creator ID，则获取对应的User对象
+        creator_user = None
+        if creator is not None:
+            creator_user = self.user_repo.find_by_id(creator)
+            
         log = LoginLog(
             status=status,
             login_type=login_type,
@@ -37,7 +42,7 @@ class LoginLogService:
             browser=browser,
             system=system,
             agent=agent,
-            creator=creator,
+            creator=creator_user,
             created_time=timezone.now()
         )
         self.login_log_repo.save(log)
@@ -116,7 +121,7 @@ class LoginLogService:
             "system": log.system,
             "agent": log.agent,
             # description字段不存在于模型中,
-            "creator_id": log.creator if isinstance(log.creator, (int, str)) else (log.creator.id if log.creator else None),
+            "creator_id": log.creator.id if log.creator else None,
             "created_time": log.created_time,
             "updated_time": log.updated_time
         }
