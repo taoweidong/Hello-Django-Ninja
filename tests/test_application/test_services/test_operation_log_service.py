@@ -2,12 +2,13 @@
 测试操作日志应用服务
 """
 
+from unittest.mock import Mock, patch
 from django.test import TestCase
+from django.core.exceptions import ObjectDoesNotExist
 from app.application.services.operation_log_service import OperationLogService
+from app.common.exception.exceptions import BusinessException
 from app.domain.models.operation_log import OperationLog
 from app.domain.models.user import User
-from app.common.exception.exceptions import BusinessException
-from unittest.mock import Mock, patch
 import uuid
 
 
@@ -18,7 +19,6 @@ class TestOperationLogService(TestCase):
 
     def test_create_operation_log_success(self):
         """测试成功创建操作日志"""
-        # 准备测试数据
         log_data = {
             "module": "测试模块",
             "path": "/test",
@@ -37,39 +37,41 @@ class TestOperationLogService(TestCase):
         # 创建mock的user对象
         mock_user = Mock(spec=User)
         mock_user.id = log_data["creator_id"]
+        mock_user._state = Mock()
+        mock_user._state.db = None
         
         # 创建mock的operation_log对象
-        mock_log = Mock(spec=OperationLog)
-        mock_log.id = 1
-        mock_log.module = log_data["module"]
-        mock_log.path = log_data["path"]
-        mock_log.body = log_data["body"]
-        mock_log.method = log_data["method"]
-        mock_log.ipaddress = log_data["ipaddress"]
-        mock_log.browser = log_data["browser"]
-        mock_log.system = log_data["system"]
-        mock_log.response_code = log_data["response_code"]
-        mock_log.response_result = log_data["response_result"]
-        mock_log.status_code = log_data["status_code"]
-        mock_log.description = log_data["description"]
-        mock_log.creator = mock_user
-        mock_log.created_time = "2023-01-01T00:00:00Z"
-        mock_log.updated_time = "2023-01-01T00:00:00Z"
+        mock_operation_log = Mock(spec=OperationLog)
+        mock_operation_log.id = 1
+        mock_operation_log.module = log_data["module"]
+        mock_operation_log.oper_url = log_data["path"]  # 对应字段
+        mock_operation_log.oper_param = log_data["body"]  # 对应字段
+        mock_operation_log.request_method = log_data["method"]  # 对应字段
+        mock_operation_log.oper_ip = log_data["ipaddress"]  # 对应字段
+        mock_operation_log.browser = log_data["browser"]
+        mock_operation_log.system = log_data["system"]
+        mock_operation_log.response_code = log_data["response_code"]
+        mock_operation_log.json_result = log_data["response_result"]  # 对应字段
+        mock_operation_log.status = bool(log_data["status_code"])  # 对应字段
+        mock_operation_log.description = log_data["description"]
+        mock_operation_log.user = mock_user  # 对应字段
+        mock_operation_log.created_time = "2023-01-01T00:00:00Z"
+        mock_operation_log.updated_time = "2023-01-01T00:00:00Z"
+        mock_operation_log._state = Mock()
+        mock_operation_log._state.db = None
         
         # 设置mock行为
         with patch('app.application.services.operation_log_service.User') as mock_user_class:
-            with patch('app.application.services.operation_log_service.OperationLog') as mock_log_class:
-                # 模拟creator存在
-                mock_user_class.objects.get.return_value = mock_user
-                mock_log_class.return_value = mock_log
-                mock_log.save.return_value = None
+            mock_user_class.objects.get.return_value = mock_user
+            with patch('app.application.services.operation_log_service.OperationLog') as mock_operation_log_class:
+                mock_operation_log_class.return_value = mock_operation_log
                 
                 result = self.operation_log_service.create_operation_log(**log_data)
                 
                 # 验证结果
                 self.assertEqual(result["module"], log_data["module"])
                 self.assertEqual(result["path"], log_data["path"])
-                self.assertEqual(result["method"], log_data["method"])
+                self.assertEqual(result["body"], log_data["body"])
 
     def test_create_operation_log_user_not_found(self):
         """测试创建操作日志时用户不存在"""
@@ -90,7 +92,7 @@ class TestOperationLogService(TestCase):
         
         # 设置mock行为，模拟用户不存在
         with patch('app.application.services.operation_log_service.User') as mock_user_class:
-            mock_user_class.objects.get.side_effect = User.DoesNotExist
+            mock_user_class.objects.get.side_effect = ObjectDoesNotExist("User not found")
             
             with self.assertRaises(BusinessException) as context:
                 self.operation_log_service.create_operation_log(**log_data)
@@ -136,7 +138,7 @@ class TestOperationLogService(TestCase):
         
         # 设置mock行为，模拟日志不存在
         with patch('app.application.services.operation_log_service.OperationLog.objects.get') as mock_get:
-            mock_get.side_effect = OperationLog.DoesNotExist
+            mock_get.side_effect = ObjectDoesNotExist("OperationLog not found")
             
             with self.assertRaises(BusinessException) as context:
                 self.operation_log_service.get_operation_log(log_id)
@@ -197,7 +199,7 @@ class TestOperationLogService(TestCase):
         
         # 设置mock行为，模拟日志不存在
         with patch('app.application.services.operation_log_service.OperationLog.objects.get') as mock_get:
-            mock_get.side_effect = OperationLog.DoesNotExist
+            mock_get.side_effect = ObjectDoesNotExist("OperationLog not found")
             
             with self.assertRaises(BusinessException) as context:
                 self.operation_log_service.update_operation_log(log_id, module="新模块")
@@ -225,7 +227,7 @@ class TestOperationLogService(TestCase):
         
         # 设置mock行为，模拟日志不存在
         with patch('app.application.services.operation_log_service.OperationLog.objects.get') as mock_get:
-            mock_get.side_effect = OperationLog.DoesNotExist
+            mock_get.side_effect = ObjectDoesNotExist("OperationLog not found")
             
             with self.assertRaises(BusinessException) as context:
                 self.operation_log_service.delete_operation_log(log_id)

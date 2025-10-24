@@ -6,6 +6,7 @@ from app.domain.models.menu import Menu
 from app.domain.models.menu_meta import MenuMeta
 from app.common.exception.exceptions import BusinessException
 from typing import List, Optional
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class MenuService:
@@ -28,14 +29,14 @@ class MenuService:
         创建菜单
         """
         # 检查name是否已存在
-        if Menu.objects.filter(name=name).exists():
+        if Menu.objects.filter(name=name).exists():  # type: ignore
             raise BusinessException(f"Menu with name '{name}' already exists.")
         
         # 检查meta_id是否存在
         if meta_id:
             try:
-                meta = MenuMeta.objects.get(id=meta_id)
-            except MenuMeta.DoesNotExist:
+                meta = MenuMeta.objects.get(id=meta_id)  # type: ignore
+            except ObjectDoesNotExist:
                 raise BusinessException(f"MenuMeta with id '{meta_id}' not found.")
         
         menu = Menu(
@@ -57,9 +58,9 @@ class MenuService:
         根据ID获取菜单
         """
         try:
-            menu = Menu.objects.get(id=menu_id)
+            menu = Menu.objects.get(id=menu_id)  # type: ignore
             return self._menu_to_dict(menu)
-        except Menu.DoesNotExist:
+        except ObjectDoesNotExist:
             raise BusinessException(f"Menu with id '{menu_id}' not found.")
 
     def update_menu(
@@ -79,13 +80,13 @@ class MenuService:
         更新菜单信息
         """
         try:
-            menu = Menu.objects.get(id=menu_id)
+            menu = Menu.objects.get(id=menu_id)  # type: ignore
             
             if menu_type is not None:
                 menu.menu_type = menu_type
             if name is not None:
                 # 检查name是否已存在（排除当前菜单）
-                if Menu.objects.filter(name=name).exclude(id=menu_id).exists():
+                if Menu.objects.filter(name=name).exclude(id=menu_id).exists():  # type: ignore
                     raise BusinessException(f"Menu with name '{name}' already exists.")
                 menu.name = name
             if rank is not None:
@@ -103,14 +104,14 @@ class MenuService:
             if meta_id is not None:
                 # 检查meta_id是否存在
                 try:
-                    meta = MenuMeta.objects.get(id=meta_id)
-                except MenuMeta.DoesNotExist:
+                    meta = MenuMeta.objects.get(id=meta_id)  # type: ignore
+                except ObjectDoesNotExist:
                     raise BusinessException(f"MenuMeta with id '{meta_id}' not found.")
                 menu.meta_id = meta_id
             
             menu.save()
             return self._menu_to_dict(menu)
-        except Menu.DoesNotExist:
+        except ObjectDoesNotExist:
             raise BusinessException(f"Menu with id '{menu_id}' not found.")
 
     def delete_menu(self, menu_id: str) -> bool:
@@ -118,17 +119,17 @@ class MenuService:
         删除菜单
         """
         try:
-            menu = Menu.objects.get(id=menu_id)
+            menu = Menu.objects.get(id=menu_id)  # type: ignore
             menu.delete()
             return True
-        except Menu.DoesNotExist:
+        except ObjectDoesNotExist:
             raise BusinessException(f"Menu with id '{menu_id}' not found.")
 
     def list_menus(self) -> List[dict]:
         """
         获取所有菜单列表
         """
-        menus = Menu.objects.all()
+        menus = Menu.objects.all()  # type: ignore
         return [self._menu_to_dict(menu) for menu in menus]
 
     def _menu_to_dict(self, menu: Menu) -> dict:

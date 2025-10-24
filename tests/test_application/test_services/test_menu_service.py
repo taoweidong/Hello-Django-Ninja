@@ -2,13 +2,14 @@
 测试菜单应用服务
 """
 
+import uuid
+from unittest.mock import Mock, patch
 from django.test import TestCase
+from django.core.exceptions import ObjectDoesNotExist
 from app.application.services.menu_service import MenuService
+from app.common.exception.exceptions import BusinessException
 from app.domain.models.menu import Menu
 from app.domain.models.menu_meta import MenuMeta
-from app.common.exception.exceptions import BusinessException
-from unittest.mock import Mock, patch
-import uuid
 
 
 class TestMenuService(TestCase):
@@ -101,7 +102,8 @@ class TestMenuService(TestCase):
         with patch('app.application.services.menu_service.Menu') as mock_menu_class:
             with patch('app.application.services.menu_service.MenuMeta') as mock_menu_meta_class:
                 mock_menu_class.objects.filter.return_value.exists.return_value = False
-                mock_menu_meta_class.objects.get.side_effect = MenuMeta.DoesNotExist
+                # 模拟ObjectDoesNotExist异常
+                mock_menu_meta_class.objects.get.side_effect = ObjectDoesNotExist("MenuMeta not found")
                 
                 with self.assertRaises(BusinessException) as context:
                     self.menu_service.create_menu(**menu_data)
@@ -141,7 +143,7 @@ class TestMenuService(TestCase):
         
         # 设置mock行为，模拟菜单不存在
         with patch('app.application.services.menu_service.Menu.objects.get') as mock_get:
-            mock_get.side_effect = Menu.DoesNotExist
+            mock_get.side_effect = ObjectDoesNotExist("Menu not found")
             
             with self.assertRaises(BusinessException) as context:
                 self.menu_service.get_menu(menu_id)
@@ -199,7 +201,7 @@ class TestMenuService(TestCase):
         
         # 设置mock行为，模拟菜单不存在
         with patch('app.application.services.menu_service.Menu.objects.get') as mock_get:
-            mock_get.side_effect = Menu.DoesNotExist
+            mock_get.side_effect = ObjectDoesNotExist("Menu not found")
             
             with self.assertRaises(BusinessException) as context:
                 self.menu_service.update_menu(menu_id, name="新菜单")
@@ -229,7 +231,7 @@ class TestMenuService(TestCase):
         with patch('app.application.services.menu_service.Menu.objects.get') as mock_get:
             with patch('app.application.services.menu_service.MenuMeta') as mock_menu_meta_class:
                 mock_get.return_value = Mock(spec=Menu)
-                mock_menu_meta_class.objects.get.side_effect = MenuMeta.DoesNotExist
+                mock_menu_meta_class.objects.get.side_effect = ObjectDoesNotExist("MenuMeta not found")
                 
                 with self.assertRaises(BusinessException) as context:
                     self.menu_service.update_menu(menu_id, meta_id=str(uuid.uuid4()))
@@ -257,7 +259,7 @@ class TestMenuService(TestCase):
         
         # 设置mock行为，模拟菜单不存在
         with patch('app.application.services.menu_service.Menu.objects.get') as mock_get:
-            mock_get.side_effect = Menu.DoesNotExist
+            mock_get.side_effect = ObjectDoesNotExist("Menu not found")
             
             with self.assertRaises(BusinessException) as context:
                 self.menu_service.delete_menu(menu_id)

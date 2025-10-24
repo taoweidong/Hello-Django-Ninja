@@ -23,7 +23,6 @@ class TestLoginLogService(TestCase):
 
     def test_create_login_log_success(self):
         """测试成功创建登录日志"""
-        # 准备测试数据
         log_data = {
             "status": True,
             "login_type": 1,
@@ -31,31 +30,31 @@ class TestLoginLogService(TestCase):
             "browser": "Chrome",
             "system": "Windows",
             "agent": "Mozilla/5.0",
-            "description": "登录成功",
             "creator": 1
         }
-        
-        # 创建mock的login_log对象
-        mock_log = Mock(spec=LoginLog)
-        mock_log.id = 1
-        mock_log.status = log_data["status"]
-        mock_log.login_type = log_data["login_type"]
-        mock_log.ipaddress = log_data["ipaddress"]
-        mock_log.browser = log_data["browser"]
-        mock_log.system = log_data["system"]
-        mock_log.agent = log_data["agent"]
-        mock_log.creator = Mock(spec=User)
-        mock_log.creator.id = log_data["creator"]
-        mock_log.created_time = "2023-01-01T00:00:00Z"
-        mock_log.updated_time = "2023-01-01T00:00:00Z"
         
         # 创建mock的user对象
         mock_user = Mock(spec=User)
         mock_user.id = log_data["creator"]
+        mock_user._state = Mock()
+        mock_user._state.db = None
+        
+        # 创建mock的login_log对象
+        mock_login_log = Mock(spec=LoginLog)
+        mock_login_log.id = 1
+        mock_login_log.status = log_data["status"]
+        mock_login_log.login_type = log_data["login_type"]
+        mock_login_log.ipaddress = log_data["ipaddress"]
+        mock_login_log.browser = log_data["browser"]
+        mock_login_log.system = log_data["system"]
+        mock_login_log.agent = log_data["agent"]
+        mock_login_log.creator = mock_user
+        mock_login_log._state = Mock()
+        mock_login_log._state.db = None
         
         # 设置mock行为
         self.mock_user_repo.find_by_id.return_value = mock_user
-        self.mock_login_log_repo.save.return_value = None
+        self.mock_login_log_repo.save.return_value = mock_login_log
         
         # 执行测试
         result = self.login_log_service.create_login_log(**log_data)

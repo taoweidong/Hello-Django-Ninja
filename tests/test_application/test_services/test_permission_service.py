@@ -20,10 +20,22 @@ class TestPermissionService(TestCase):
     def test_create_permission_success(self):
         """测试成功创建权限"""
         # 准备测试数据
+        # 创建mock的ContentType对象
+        from django.contrib.contenttypes.models import ContentType
+        mock_content_type = Mock(spec=ContentType)
+        mock_content_type.__str__ = Mock(return_value="test_content_type")
+        mock_content_type._meta = Mock()
+        mock_content_type._meta.app_label = "test_app"
+        mock_content_type._meta.model_name = "test_model"
+        mock_content_type.name = "Test Content Type"
+        # 添加Django模型所需的_state属性
+        mock_content_type._state = Mock()
+        mock_content_type._state.db = None
+        
         permission_data = {
             "name": "测试权限",
             "codename": "test_permission",
-            "content_type": "test_content_type"
+            "content_type": mock_content_type
         }
         
         # 创建mock的permission对象
@@ -31,10 +43,14 @@ class TestPermissionService(TestCase):
         mock_permission.pk = 1
         mock_permission.name = permission_data["name"]
         mock_permission.codename = permission_data["codename"]
+        mock_permission.content_type = mock_content_type
+        # 添加Django模型所需的_state属性
+        mock_permission._state = Mock()
+        mock_permission._state.db = None
         
         # 设置mock行为
         self.mock_repo.find_by_codename.return_value = None
-        self.mock_repo.save.return_value = None
+        self.mock_repo.save.return_value = mock_permission
         
         result = self.permission_service.create_permission(**permission_data)
         
@@ -45,10 +61,14 @@ class TestPermissionService(TestCase):
 
     def test_create_permission_duplicate_codename(self):
         """测试创建权限时codename重复"""
+        # 创建mock的ContentType对象
+        mock_content_type = Mock()
+        mock_content_type.__str__ = Mock(return_value="test_content_type")
+        
         permission_data = {
             "name": "测试权限",
             "codename": "duplicate_codename",
-            "content_type": "test_content_type"
+            "content_type": mock_content_type
         }
         
         # 设置mock行为，模拟codename已存在
@@ -98,10 +118,14 @@ class TestPermissionService(TestCase):
         mock_permission.name = "原始权限"
         mock_permission.codename = "original_permission"
         
+        # 创建mock的ContentType对象
+        mock_content_type = Mock()
+        mock_content_type.__str__ = Mock(return_value="updated_content_type")
+        
         update_data = {
             "name": "更新权限",
             "codename": "updated_permission",
-            "content_type": "updated_content_type"
+            "content_type": mock_content_type
         }
         
         # 设置mock行为
