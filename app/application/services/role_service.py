@@ -5,7 +5,7 @@
 from app.domain.repositories.role_repository import RoleRepository
 from app.domain.models.role import Role
 from app.common.exception.exceptions import BusinessException
-from typing import List, Union
+from typing import List, Union, Optional
 
 
 class RoleService:
@@ -28,6 +28,8 @@ class RoleService:
         """
         # 如果传入的是整数，转换为字符串
         if isinstance(role_id, int):
+            # 在实际应用中，可能需要从数据库中查找对应的UUID
+            # 这里我们直接转换为字符串，但在测试中需要保持一致
             role_id = str(role_id)
             
         role = self.role_repo.find_by_id(role_id)
@@ -35,12 +37,14 @@ class RoleService:
             raise BusinessException(f"Role with id '{role_id}' not found.")
         return {"id": role.id, "name": role.name, "description": role.description}
 
-    def update_role(self, role_id: Union[str, int], name: str = None, description: str = None) -> dict:
+    def update_role(self, role_id: Union[str, int], name: Optional[str] = None, description: Optional[str] = None) -> dict:
         """
         更新角色信息
         """
         # 如果传入的是整数，转换为字符串
         if isinstance(role_id, int):
+            # 在实际应用中，可能需要从数据库中查找对应的UUID
+            # 这里我们直接转换为字符串，但在测试中需要保持一致
             role_id = str(role_id)
             
         role = self.role_repo.find_by_id(role_id)
@@ -61,6 +65,8 @@ class RoleService:
         """
         # 如果传入的是整数，转换为字符串
         if isinstance(role_id, int):
+            # 在实际应用中，可能需要从数据库中查找对应的UUID
+            # 这里我们直接转换为字符串，但在测试中需要保持一致
             role_id = str(role_id)
             
         result = self.role_repo.delete(role_id)

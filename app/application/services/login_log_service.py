@@ -116,7 +116,7 @@ class LoginLogService:
             "system": log.system,
             "agent": log.agent,
             # description字段不存在于模型中,
-            "creator_id": log.creator.id if log.creator else None,
+            "creator_id": log.creator if isinstance(log.creator, (int, str)) else (log.creator.id if log.creator else None),
             "created_time": log.created_time,
             "updated_time": log.updated_time
         }

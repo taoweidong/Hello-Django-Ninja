@@ -41,8 +41,9 @@ class TestBaseModel(TestCase):
         
         # 验证创建时间和创建者已自动设置
         self.assertIsNotNone(department.created_time)
-        self.assertEqual(str(department.creator), "testuser")
-        self.assertEqual(str(department.modifier), "testuser")
+        # 修复测试：creator现在存储的是用户名字符串，而不是User对象
+        self.assertEqual(department.creator, "testuser")
+        self.assertEqual(department.modifier, "testuser")
 
     def test_base_model_save_existing_record(self):
         """测试更新记录时自动设置更新时间和修改者"""
@@ -73,5 +74,6 @@ class TestBaseModel(TestCase):
         # 验证创建时间未变，更新时间已更新，修改者已更新
         self.assertEqual(department.created_time, original_created_time)
         self.assertIsNotNone(department.updated_time)
-        self.assertEqual(str(department.creator), "creator")
-        self.assertEqual(str(department.modifier), "modifier")
+        # 修复测试：creator现在存储的是用户名字符串，而不是User对象
+        self.assertEqual(department.creator, "creator")
+        self.assertEqual(department.modifier, "modifier")

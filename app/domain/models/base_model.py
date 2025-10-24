@@ -47,9 +47,19 @@ class BaseModel(models.Model):
         # 更新updated_time为当前时间
         self.updated_time = timezone.now()
 
+        # 获取当前用户
+        current_user = get_current_user()
+        
         # 如果是新记录且created_time未设置，则设置为当前时间
         if not self.created_time:
             self.created_time = timezone.now()
+            # 如果是新记录且current_user存在，则设置creator
+            if current_user:
+                self.creator = current_user
+            
+        # 设置modifier为当前用户
+        if current_user:
+            self.modifier = current_user
 
         # 调用父类的save方法
         super().save(*args, **kwargs)
