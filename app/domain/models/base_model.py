@@ -48,7 +48,7 @@ class BaseModel(models.Model):
         self.updated_time = timezone.now()
 
         # 如果是新记录且created_time未设置，则设置为当前时间
-        if not self.pk and not self.created_time:
+        if not self.created_time:
             self.created_time = timezone.now()
 
         # 调用父类的save方法

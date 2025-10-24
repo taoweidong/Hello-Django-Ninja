@@ -1,6 +1,9 @@
 """
 API 路由配置
 """
+"""
+API 路由配置
+"""
 from loguru import logger
 from ninja_extra import NinjaExtraAPI
 from ninja_jwt.authentication import JWTAuth
@@ -30,7 +33,19 @@ ninja_extra_api = NinjaExtraAPI(
 )
 
 # 注册全局异常处理器
-ninja_extra_api.add_exception_handler(Exception, global_exception_handler)
+def exception_handler_wrapper(request, exc):
+    result = global_exception_handler(request, exc)
+    # 如果返回的是 HttpResponse（包括 JsonResponse），直接返回
+    if result is not None:
+        return result
+    # 如果返回 None，创建一个默认的 HttpResponse
+    from django.http import JsonResponse
+    return JsonResponse(
+        {"success": False, "message": "服务器内部错误，请联系管理员！"},
+        status=500
+    )
+
+ninja_extra_api.add_exception_handler(Exception, exception_handler_wrapper)
 
 # 注册控制器
 ninja_extra_api.register_controllers(
