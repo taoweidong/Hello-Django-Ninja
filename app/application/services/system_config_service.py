@@ -4,6 +4,7 @@
 
 from app.domain.models.system_config import SystemConfig
 from app.common.exception.exceptions import BusinessException
+from django.core.exceptions import ObjectDoesNotExist
 from typing import List, Optional
 
 
@@ -45,7 +46,7 @@ class SystemConfigService:
         try:
             config = SystemConfig.objects.get(id=config_id)
             return self._system_config_to_dict(config)
-        except SystemConfig.DoesNotExist:
+        except ObjectDoesNotExist:
             raise BusinessException(f"SystemConfig with id '{config_id}' not found.")
 
     def get_system_config_by_key(self, key: str) -> dict:
@@ -55,7 +56,7 @@ class SystemConfigService:
         try:
             config = SystemConfig.objects.get(key=key)
             return self._system_config_to_dict(config)
-        except SystemConfig.DoesNotExist:
+        except ObjectDoesNotExist:
             raise BusinessException(f"SystemConfig with key '{key}' not found.")
 
     def update_system_config(
@@ -92,7 +93,7 @@ class SystemConfigService:
             
             config.save()
             return self._system_config_to_dict(config)
-        except SystemConfig.DoesNotExist:
+        except ObjectDoesNotExist:
             raise BusinessException(f"SystemConfig with id '{config_id}' not found.")
 
     def delete_system_config(self, config_id: str) -> bool:
@@ -103,7 +104,7 @@ class SystemConfigService:
             config = SystemConfig.objects.get(id=config_id)
             config.delete()
             return True
-        except SystemConfig.DoesNotExist:
+        except ObjectDoesNotExist:
             raise BusinessException(f"SystemConfig with id '{config_id}' not found.")
 
     def list_system_configs(self) -> List[dict]:

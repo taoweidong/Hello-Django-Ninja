@@ -55,11 +55,20 @@ class BaseModel(models.Model):
             self.created_time = timezone.now()
             # 如果是新记录且current_user存在，则设置creator
             if current_user:
-                self.creator = current_user
+                # 简单地设置creator，让Django处理类型转换
+                try:
+                    self.creator = current_user
+                except ValueError:
+                    # 如果直接赋值失败（如LoginLog需要User实例），则保持原样
+                    pass
             
         # 设置modifier为当前用户
         if current_user:
-            self.modifier = current_user
+            try:
+                self.modifier = current_user
+            except ValueError:
+                # 如果直接赋值失败，保持原样
+                pass
 
         # 调用父类的save方法
         super().save(*args, **kwargs)
